@@ -83,11 +83,15 @@
     let tempCoords = [];
     let tempPolyline = null;
 
-    function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: -23.550520, lng: -46.633308 },
-            zoom: 16,
-        });
+function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -20.899359547695433, lng: -46.99020733379837 },
+        zoom: 18,
+        mapTypeId: 'satellite'
+    });
+
+}
+
 
         for (const key in lotes) {
             adicionarPoligonoAoMapa(key, lotes[key]);
