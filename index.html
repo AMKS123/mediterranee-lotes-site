@@ -83,15 +83,12 @@
     let tempCoords = [];
     let tempPolyline = null;
 
-function initMap() {
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: -20.899359547695433, lng: -46.99020733379837 },
-        zoom: 18,
-        mapTypeId: 'satellite'
-    });
-
-    // (resto do seu código de lotes permanece igual)
-}
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: -20.899359547695433, lng: -46.99020733379837 },
+            zoom: 18,
+            mapTypeId: 'satellite'
+        });
 
         for (const key in lotes) {
             adicionarPoligonoAoMapa(key, lotes[key]);
@@ -238,6 +235,7 @@ function initMap() {
         document.getElementById('coordenadas').value = "";
     }
 </script>
+
 <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
 
 </body>
