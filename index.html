@@ -202,13 +202,12 @@
         }
 
         let key = loteEditando || "lote_" + Date.now();
+        const metodo = loteEditando ? 'update' : 'add';
+        loteEditando = null;
+
         lotes[key] = { nome, descricao, area };
         adicionarPoligonoAoMapa(key, lotes[key]);
         adicionarLoteAoDropdown(key, lotes[key]);
-        loteEditando = null;
-
-        const metodo = loteEditando ? 'update' : 'add';
-        loteEditando = null;
 
         fetch(API_URL, {
             method: 'POST',
@@ -266,7 +265,7 @@
         document.getElementById('coordenadas').value = "";
     }
 </script>
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
 
 </body>
 </html>
