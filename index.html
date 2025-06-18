@@ -75,8 +75,9 @@
 <div id="map"></div>
 
 <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbylJLajX7UMAcjQTt_4A2eoDqILCKLHCSDNXmeDh9R07xQqdREL0b1b0NHXJSoNM0hM/exec';
     let map;
-    const lotes = JSON.parse(localStorage.getItem('lotes')) || {};
+    const lotes = {};
     const poligonos = {};
     let loteEditando = null;
     let drawingMode = false;
@@ -90,10 +91,23 @@
             mapTypeId: 'satellite'
         });
 
-        for (const key in lotes) {
-            adicionarPoligonoAoMapa(key, lotes[key]);
-            adicionarLoteAoDropdown(key, lotes[key]);
-        }
+        fetch(API_URL)
+          .then(response => response.json())
+          .then(data => {
+              data.forEach(lote => {
+                  try {
+                      lotes[lote.id] = {
+                          nome: lote.nome,
+                          descricao: lote.descricao,
+                          area: JSON.parse(lote.coordenadas)
+                      };
+                      adicionarPoligonoAoMapa(lote.id, lotes[lote.id]);
+                      adicionarLoteAoDropdown(lote.id, lotes[lote.id]);
+                  } catch (e) {
+                      console.error('Erro ao processar lote:', lote, e);
+                  }
+              });
+          });
 
         map.addListener("click", (e) => {
             if (drawingMode) {
@@ -191,9 +205,22 @@
         lotes[key] = { nome, descricao, area };
         adicionarPoligonoAoMapa(key, lotes[key]);
         adicionarLoteAoDropdown(key, lotes[key]);
-        salvarLotesLocalStorage();
-        limparFormulario();
         loteEditando = null;
+
+        const metodo = loteEditando ? 'update' : 'add';
+
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: metodo,
+                id: key,
+                nome: nome,
+                descricao: descricao,
+                coordenadas: JSON.stringify(area)
+            })
+        });
+
+        limparFormulario();
         alert("Lote salvo com sucesso!");
     }
 
@@ -207,8 +234,15 @@
         delete poligonos[selecionado];
         delete lotes[selecionado];
         document.querySelector(`#loteSelect option[value='${selecionado}']`).remove();
-        salvarLotesLocalStorage();
         document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
+
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                action: 'delete',
+                id: selecionado
+            })
+        });
     }
 
     function editarLote() {
@@ -223,10 +257,6 @@
         document.getElementById('coordenadas').value = lote.area.map(p => `${p.lat},${p.lng}`).join('\n');
         loteEditando = selecionado;
         alert("Lote carregado para edição.");
-    }
-
-    function salvarLotesLocalStorage() {
-        localStorage.setItem('lotes', JSON.stringify(lotes));
     }
 
     function limparFormulario() {
