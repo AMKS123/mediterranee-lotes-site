@@ -208,6 +208,7 @@
         loteEditando = null;
 
         const metodo = loteEditando ? 'update' : 'add';
+        loteEditando = null;
 
         fetch(API_URL, {
             method: 'POST',
