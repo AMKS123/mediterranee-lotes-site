@@ -76,6 +76,7 @@
     <textarea id="coordenadas" rows="4" placeholder="Coordenadas lat,lon por linha..."></textarea>
     <button onclick="adicionarOuAtualizarLote()">Salvar Lote</button>
     <button onclick="modoDesenho()">Desenhar Lote no Mapa</button>
+    <button id="cancelarDesenhoBtn" onclick="cancelarDesenho()" style="display:none;">Cancelar Desenho</button>
 </div>
 
 <div id="map"></div>
@@ -182,7 +183,20 @@
         if (hoverInfo) hoverInfo.close();
         if (hoverLine) hoverLine.setMap(null);
         if (map) map.setOptions({ draggableCursor: 'default', draggingCursor: 'default' });
+        document.getElementById('cancelarDesenhoBtn').style.display = 'block';
         alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
+    }
+
+    function cancelarDesenho() {
+        drawingMode = false;
+        tempCoords = [];
+        if (map) map.setOptions({ draggableCursor: null, draggingCursor: null });
+        if (tempPolyline) tempPolyline.setMap(null);
+        distanceOverlays.forEach(o => o.close());
+        distanceOverlays = [];
+        if (hoverInfo) hoverInfo.close();
+        if (hoverLine) hoverLine.setMap(null);
+        document.getElementById('cancelarDesenhoBtn').style.display = 'none';
     }
 
     function adicionarPoligonoAoMapa(key, lote) {
@@ -248,6 +262,7 @@
             distanceOverlays = [];
             if (hoverInfo) hoverInfo.close();
             if (hoverLine) hoverLine.setMap(null);
+            document.getElementById('cancelarDesenhoBtn').style.display = 'none';
         } else {
             const linhas = coordText.split('\n');
             for (const linha of linhas) {
