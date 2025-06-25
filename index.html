@@ -89,6 +89,7 @@
     let drawingMode = false;
     let tempCoords = [];
     let tempPolyline = null;
+    let distanceOverlays = [];
 
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
@@ -117,7 +118,8 @@
 
         map.addListener("click", (e) => {
             if (drawingMode) {
-                tempCoords.push({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+                const point = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+                tempCoords.push(point);
                 if (tempPolyline) tempPolyline.setMap(null);
                 tempPolyline = new google.maps.Polyline({
                     path: tempCoords,
@@ -126,6 +128,16 @@
                     strokeOpacity: 0.8,
                     strokeWeight: 2,
                 });
+                if (tempCoords.length > 1) {
+                    const prev = tempCoords[tempCoords.length - 2];
+                    const start = new google.maps.LatLng(prev);
+                    const end = new google.maps.LatLng(point);
+                    const dist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
+                    const mid = new google.maps.LatLng((prev.lat + point.lat) / 2, (prev.lng + point.lng) / 2);
+                    const info = new google.maps.InfoWindow({ content: dist.toFixed(2) + ' m', position: mid });
+                    info.open(map);
+                    distanceOverlays.push(info);
+                }
             }
         });
     }
@@ -133,6 +145,9 @@
     function modoDesenho() {
         drawingMode = true;
         tempCoords = [];
+        if (tempPolyline) tempPolyline.setMap(null);
+        distanceOverlays.forEach(o => o.close());
+        distanceOverlays = [];
         alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
     }
 
@@ -194,6 +209,8 @@
             area = tempCoords;
             drawingMode = false;
             if (tempPolyline) tempPolyline.setMap(null);
+            distanceOverlays.forEach(o => o.close());
+            distanceOverlays = [];
         } else {
             const linhas = coordText.split('\n');
             for (const linha of linhas) {
@@ -273,7 +290,7 @@
         document.getElementById('coordenadas').value = "";
     }
 </script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap&libraries=geometry"></script>
 
 </body>
 </html>
