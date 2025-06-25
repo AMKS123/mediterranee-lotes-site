@@ -179,6 +179,7 @@
         distanceOverlays = [];
         if (hoverInfo) hoverInfo.close();
         if (hoverLine) hoverLine.setMap(null);
+        if (map) map.setOptions({ draggableCursor: 'default', draggingCursor: 'default' });
         alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
     }
 
@@ -239,6 +240,7 @@
         if (drawingMode && tempCoords.length > 0) {
             area = tempCoords;
             drawingMode = false;
+            if (map) map.setOptions({ draggableCursor: null, draggingCursor: null });
             if (tempPolyline) tempPolyline.setMap(null);
             distanceOverlays.forEach(o => o.close());
             distanceOverlays = [];
