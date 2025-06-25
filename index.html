@@ -90,6 +90,8 @@
     let tempCoords = [];
     let tempPolyline = null;
     let distanceOverlays = [];
+    let hoverInfo = null;
+    let hoverLine = null;
 
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
@@ -138,6 +140,33 @@
                     info.open(map);
                     distanceOverlays.push(info);
                 }
+                if (hoverInfo) hoverInfo.close();
+                if (hoverLine) hoverLine.setMap(null);
+            }
+        });
+
+        map.addListener("mousemove", (e) => {
+            if (drawingMode && tempCoords.length > 0) {
+                const last = tempCoords[tempCoords.length - 1];
+                const start = new google.maps.LatLng(last);
+                const dist = google.maps.geometry.spherical.computeDistanceBetween(start, e.latLng);
+                const mid = new google.maps.LatLng((last.lat + e.latLng.lat()) / 2,
+                                                (last.lng + e.latLng.lng()) / 2);
+                if (!hoverInfo) hoverInfo = new google.maps.InfoWindow();
+                hoverInfo.setContent(dist.toFixed(2) + ' m');
+                hoverInfo.setPosition(mid);
+                hoverInfo.open(map);
+                if (hoverLine) hoverLine.setMap(null);
+                hoverLine = new google.maps.Polyline({
+                    path: [last, { lat: e.latLng.lat(), lng: e.latLng.lng() }],
+                    map: map,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.5,
+                    strokeWeight: 2,
+                });
+            } else {
+                if (hoverInfo) hoverInfo.close();
+                if (hoverLine) hoverLine.setMap(null);
             }
         });
     }
@@ -148,6 +177,8 @@
         if (tempPolyline) tempPolyline.setMap(null);
         distanceOverlays.forEach(o => o.close());
         distanceOverlays = [];
+        if (hoverInfo) hoverInfo.close();
+        if (hoverLine) hoverLine.setMap(null);
         alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
     }
 
@@ -211,6 +242,8 @@
             if (tempPolyline) tempPolyline.setMap(null);
             distanceOverlays.forEach(o => o.close());
             distanceOverlays = [];
+            if (hoverInfo) hoverInfo.close();
+            if (hoverLine) hoverLine.setMap(null);
         } else {
             const linhas = coordText.split('\n');
             for (const linha of linhas) {
