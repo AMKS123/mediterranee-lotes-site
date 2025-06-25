@@ -3,6 +3,7 @@
 <head>
     <title>Mediterranee Imobiliaria - Mapa de Lotes</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             margin: 0;
@@ -44,6 +45,11 @@
         }
         button:hover {
             background-color: #2980b9;
+        }
+        @media (max-width: 600px) {
+            body { flex-direction: column; }
+            #sidebar { width: 100%; height: auto; }
+            #map { width: 100%; height: 60vh; }
         }
     </style>
 </head>
@@ -134,10 +140,10 @@
         if (poligonos[key]) poligonos[key].setMap(null);
         const polygon = new google.maps.Polygon({
             paths: lote.area,
-            strokeColor: "#00FF00",
+            strokeColor: "#0000FF",
             strokeOpacity: 0.8,
             strokeWeight: 2,
-            fillColor: "#00FF00",
+            fillColor: "#0000FF",
             fillOpacity: 0.35,
             map: map,
         });
@@ -157,9 +163,9 @@
 
     function destacarLote() {
         const selecionado = document.getElementById('loteSelect').value;
-        for (const key in poligonos) poligonos[key].setOptions({ fillColor: '#00FF00', strokeColor: '#00FF00' });
+        for (const key in poligonos) poligonos[key].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
         if (selecionado && poligonos[selecionado]) {
-            poligonos[selecionado].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
+            poligonos[selecionado].setOptions({ fillColor: '#00FF00', strokeColor: '#00FF00' });
             const bounds = new google.maps.LatLngBounds();
             lotes[selecionado].area.forEach(coord => bounds.extend(coord));
             map.fitBounds(bounds);
