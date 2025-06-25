@@ -58,6 +58,11 @@
 <div id="sidebar">
     <h1>Mediterranee Imobiliaria</h1>
 
+    <label for="loteamentoSelect">Selecione um loteamento:</label>
+    <select id="loteamentoSelect" onchange="filtrarPorLoteamento()">
+        <option value="">-- Escolha um loteamento --</option>
+    </select>
+
     <label for="loteSelect">Selecione um lote:</label>
     <select id="loteSelect" onchange="destacarLote()">
         <option value="">-- Escolha um lote --</option>
@@ -71,12 +76,11 @@
     </div>
 
     <h3>Cadastrar / Editar lote:</h3>
+    <input type="text" id="loteamentoInput" placeholder="Loteamento">
     <input type="text" id="nomeLote" placeholder="Nome do lote">
     <textarea id="descricaoLote" rows="3" placeholder="Descrição..."></textarea>
     <textarea id="coordenadas" rows="4" placeholder="Coordenadas lat,lon por linha..."></textarea>
     <button onclick="adicionarOuAtualizarLote()">Salvar Lote</button>
-    <button onclick="modoDesenho()">Desenhar Lote no Mapa</button>
-    <button id="cancelarDesenhoBtn" onclick="cancelarDesenho()" style="display:none;">Cancelar Desenho</button>
 </div>
 
 <div id="map"></div>
@@ -86,6 +90,7 @@
     let map;
     const lotes = {};
     const poligonos = {};
+    const loteamentos = {};
     let loteEditando = null;
     let drawingMode = false;
     let tempCoords = [];
@@ -106,17 +111,24 @@
           .then(data => {
               data.forEach(lote => {
                   try {
-                      lotes[lote.id] = {
+                      const info = {
                           nome: lote.nome,
                           descricao: lote.descricao,
+                          loteamento: lote.loteamento || '',
                           area: JSON.parse(lote.coordenadas)
                       };
-                      adicionarPoligonoAoMapa(lote.id, lotes[lote.id]);
-                      adicionarLoteAoDropdown(lote.id, lotes[lote.id]);
+                      lotes[lote.id] = info;
+                      if (!loteamentos[info.loteamento]) {
+                          loteamentos[info.loteamento] = [];
+                          adicionarLoteamentoAoDropdown(info.loteamento);
+                      }
+                      loteamentos[info.loteamento].push(lote.id);
+                      adicionarPoligonoAoMapa(lote.id, info);
                   } catch (e) {
                       console.error('Erro ao processar lote:', lote, e);
                   }
               });
+              filtrarPorLoteamento();
           });
 
         map.addListener("click", (e) => {
@@ -221,13 +233,38 @@
         poligonos[key] = polygon;
     }
 
+    function adicionarLoteamentoAoDropdown(nome) {
+        if (!nome || document.querySelector(`#loteamentoSelect option[value='${nome}']`)) return;
+        const option = document.createElement('option');
+        option.value = nome;
+        option.text = nome;
+        document.getElementById('loteamentoSelect').appendChild(option);
+    }
+
     function adicionarLoteAoDropdown(key, lote) {
         const select = document.getElementById('loteSelect');
-        if (!document.querySelector(`option[value='${key}']`)) {
-            const option = document.createElement('option');
-            option.value = key;
-            option.text = lote.nome;
-            select.appendChild(option);
+        if (!document.querySelector(`#loteSelect option[value='${key}']`)) {
+            const selectedLoteamento = document.getElementById('loteamentoSelect').value;
+            if (!selectedLoteamento || lote.loteamento === selectedLoteamento) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.text = lote.nome;
+                select.appendChild(option);
+            }
+        }
+    }
+
+    function filtrarPorLoteamento() {
+        const filtro = document.getElementById('loteamentoSelect').value;
+        const select = document.getElementById('loteSelect');
+        select.innerHTML = '<option value="">-- Escolha um lote --</option>';
+        for (const id in lotes) {
+            if (!filtro || lotes[id].loteamento === filtro) {
+                const option = document.createElement('option');
+                option.value = id;
+                option.text = lotes[id].nome;
+                select.appendChild(option);
+            }
         }
     }
 
@@ -250,11 +287,12 @@
     function mostrarInfoLote(key) {
         if (lotes[key]) {
             const descricaoFormatada = lotes[key].descricao.replace(/\n/g, "<br>");
-            document.getElementById('dadosLote').innerHTML = `<strong>Nome:</strong> ${lotes[key].nome}<br><strong>Descrição:</strong><br>${descricaoFormatada}`;
+            document.getElementById('dadosLote').innerHTML = `<strong>Nome:</strong> ${lotes[key].nome}<br><strong>Loteamento:</strong> ${lotes[key].loteamento}<br><strong>Descrição:</strong><br>${descricaoFormatada}`;
         }
     }
 
     function adicionarOuAtualizarLote() {
+        const loteamento = document.getElementById('loteamentoInput').value.trim();
         const nome = document.getElementById('nomeLote').value.trim();
         const descricao = document.getElementById('descricaoLote').value.trim();
         let area = [];
@@ -280,8 +318,8 @@
             }
         }
 
-        if (!nome || area.length < 3) {
-            alert("Preencha o nome e uma área válida (mínimo 3 pontos). Ou use o modo de desenho.");
+        if (!loteamento || !nome || area.length < 3) {
+            alert("Preencha loteamento, nome e uma área válida (mínimo 3 pontos).");
             return;
         }
 
@@ -289,9 +327,14 @@
         const metodo = loteEditando ? 'update' : 'add';
         loteEditando = null;
 
-        lotes[key] = { nome, descricao, area };
+        lotes[key] = { nome, descricao, loteamento, area };
+        if (!loteamentos[loteamento]) {
+            loteamentos[loteamento] = [];
+            adicionarLoteamentoAoDropdown(loteamento);
+        }
+        if (!loteamentos[loteamento].includes(key)) loteamentos[loteamento].push(key);
         adicionarPoligonoAoMapa(key, lotes[key]);
-        adicionarLoteAoDropdown(key, lotes[key]);
+        filtrarPorLoteamento();
 
         fetch(API_URL, {
             method: 'POST',
@@ -300,7 +343,8 @@
                 id: key,
                 nome: nome,
                 descricao: descricao,
-                coordenadas: JSON.stringify(area)
+                coordenadas: JSON.stringify(area),
+                loteamento: loteamento
             })
         });
 
@@ -316,9 +360,21 @@
         }
         if (poligonos[selecionado]) poligonos[selecionado].setMap(null);
         delete poligonos[selecionado];
+        const lot = lotes[selecionado];
+        if (lot) {
+            const arr = loteamentos[lot.loteamento] || [];
+            loteamentos[lot.loteamento] = arr.filter(id => id !== selecionado);
+            if (loteamentos[lot.loteamento].length === 0) {
+                delete loteamentos[lot.loteamento];
+                const opt = document.querySelector(`#loteamentoSelect option[value='${lot.loteamento}']`);
+                if (opt) opt.remove();
+            }
+        }
         delete lotes[selecionado];
         document.querySelector(`#loteSelect option[value='${selecionado}']`).remove();
         document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
+
+        filtrarPorLoteamento();
 
         fetch(API_URL, {
             method: 'POST',
@@ -336,6 +392,7 @@
             return;
         }
         const lote = lotes[selecionado];
+        document.getElementById('loteamentoInput').value = lote.loteamento;
         document.getElementById('nomeLote').value = lote.nome;
         document.getElementById('descricaoLote').value = lote.descricao;
         document.getElementById('coordenadas').value = lote.area.map(p => `${p.lat},${p.lng}`).join('\n');
@@ -344,6 +401,7 @@
     }
 
     function limparFormulario() {
+        document.getElementById('loteamentoInput').value = "";
         document.getElementById('nomeLote').value = "";
         document.getElementById('descricaoLote').value = "";
         document.getElementById('coordenadas').value = "";
