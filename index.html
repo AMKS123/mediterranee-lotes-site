@@ -163,8 +163,10 @@
 
     function destacarLote() {
         const selecionado = document.getElementById('loteSelect').value;
+        // all lots display in blue by default
         for (const key in poligonos) poligonos[key].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
         if (selecionado && poligonos[selecionado]) {
+            // highlight the selected lot in green
             poligonos[selecionado].setOptions({ fillColor: '#00FF00', strokeColor: '#00FF00' });
             const bounds = new google.maps.LatLngBounds();
             lotes[selecionado].area.forEach(coord => bounds.extend(coord));
