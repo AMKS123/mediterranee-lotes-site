@@ -137,8 +137,12 @@
                     const start = new google.maps.LatLng(prev);
                     const end = new google.maps.LatLng(point);
                     const dist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
-                    const mid = new google.maps.LatLng((prev.lat + point.lat) / 2, (prev.lng + point.lng) / 2);
-                    const info = new google.maps.InfoWindow({ content: dist.toFixed(2) + ' m', position: mid });
+                    const info = new google.maps.InfoWindow({
+                        content: dist.toFixed(2) + ' m',
+                        position: start,
+                        pixelOffset: new google.maps.Size(0, -30),
+                        disableAutoPan: true
+                    });
                     info.open(map);
                     distanceOverlays.push(info);
                 }
@@ -152,11 +156,14 @@
                 const last = tempCoords[tempCoords.length - 1];
                 const start = new google.maps.LatLng(last);
                 const dist = google.maps.geometry.spherical.computeDistanceBetween(start, e.latLng);
-                const mid = new google.maps.LatLng((last.lat + e.latLng.lat()) / 2,
-                                                (last.lng + e.latLng.lng()) / 2);
-                if (!hoverInfo) hoverInfo = new google.maps.InfoWindow();
+                if (!hoverInfo) {
+                    hoverInfo = new google.maps.InfoWindow({
+                        disableAutoPan: true,
+                        pixelOffset: new google.maps.Size(0, -30)
+                    });
+                }
                 hoverInfo.setContent(dist.toFixed(2) + ' m');
-                hoverInfo.setPosition(mid);
+                hoverInfo.setPosition(start);
                 hoverInfo.open(map);
                 if (hoverLine) hoverLine.setMap(null);
                 hoverLine = new google.maps.Polyline({
@@ -203,10 +210,10 @@
         if (poligonos[key]) poligonos[key].setMap(null);
         const polygon = new google.maps.Polygon({
             paths: lote.area,
-            strokeColor: "#00FF00",
+            strokeColor: "#0000FF",
             strokeOpacity: 0.8,
             strokeWeight: 2,
-            fillColor: "#00FF00",
+            fillColor: "#0000FF",
             fillOpacity: 0.35,
             map: map,
         });
@@ -226,11 +233,11 @@
 
     function destacarLote() {
         const selecionado = document.getElementById('loteSelect').value;
-        // all lots display in green by default
-        for (const key in poligonos) poligonos[key].setOptions({ fillColor: '#00FF00', strokeColor: '#00FF00' });
+        // all lots display in blue by default
+        for (const key in poligonos) poligonos[key].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
         if (selecionado && poligonos[selecionado]) {
-            // highlight the selected lot in blue
-            poligonos[selecionado].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
+            // highlight the selected lot in green
+            poligonos[selecionado].setOptions({ fillColor: '#00FF00', strokeColor: '#00FF00' });
             const bounds = new google.maps.LatLngBounds();
             lotes[selecionado].area.forEach(coord => bounds.extend(coord));
             map.fitBounds(bounds);
