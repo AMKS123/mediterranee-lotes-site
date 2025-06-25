@@ -3,6 +3,7 @@
 <head>
     <title>Mediterranee Imobiliaria - Mapa de Lotes</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
         body {
             margin: 0;
@@ -44,6 +45,20 @@
         }
         button:hover {
             background-color: #2980b9;
+        }
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+            #sidebar {
+                width: 100%;
+                box-shadow: none;
+            }
+            #map {
+                width: 100%;
+                height: 60vh;
+            }
         }
     </style>
 </head>
