@@ -92,12 +92,6 @@
     const poligonos = {};
     const loteamentos = {};
     let loteEditando = null;
-    let drawingMode = false;
-    let tempCoords = [];
-    let tempPolyline = null;
-    let distanceOverlays = [];
-    let hoverInfo = null;
-    let hoverLine = null;
 
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
@@ -131,92 +125,9 @@
               filtrarPorLoteamento();
           });
 
-        map.addListener("click", (e) => {
-            if (drawingMode) {
-                const point = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-                tempCoords.push(point);
-                if (tempPolyline) tempPolyline.setMap(null);
-                tempPolyline = new google.maps.Polyline({
-                    path: tempCoords,
-                    map: map,
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                    clickable: false,
-                });
-                if (tempCoords.length > 1) {
-                    const prev = tempCoords[tempCoords.length - 2];
-                    const start = new google.maps.LatLng(prev);
-                    const end = new google.maps.LatLng(point);
-                    const dist = google.maps.geometry.spherical.computeDistanceBetween(start, end);
-                    const info = new google.maps.InfoWindow({
-                        content: dist.toFixed(2) + ' m',
-                        position: start,
-                        pixelOffset: new google.maps.Size(0, -30),
-                        disableAutoPan: true
-                    });
-                    info.open(map);
-                    distanceOverlays.push(info);
-                }
-                if (hoverInfo) hoverInfo.close();
-                if (hoverLine) hoverLine.setMap(null);
-            }
-        });
-
-        map.addListener("mousemove", (e) => {
-            if (drawingMode && tempCoords.length > 0) {
-                const last = tempCoords[tempCoords.length - 1];
-                const start = new google.maps.LatLng(last);
-                const dist = google.maps.geometry.spherical.computeDistanceBetween(start, e.latLng);
-                if (!hoverInfo) {
-                    hoverInfo = new google.maps.InfoWindow({
-                        disableAutoPan: true,
-                        pixelOffset: new google.maps.Size(0, -30)
-                    });
-                }
-                hoverInfo.setContent(dist.toFixed(2) + ' m');
-                hoverInfo.setPosition(start);
-                hoverInfo.open(map);
-                if (hoverLine) hoverLine.setMap(null);
-                hoverLine = new google.maps.Polyline({
-                    path: [last, { lat: e.latLng.lat(), lng: e.latLng.lng() }],
-                    map: map,
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 0.5,
-                    strokeWeight: 2,
-                    clickable: false,
-                });
-            } else {
-                if (hoverInfo) hoverInfo.close();
-                if (hoverLine) hoverLine.setMap(null);
-            }
-        });
+        // apenas exibe os polígonos carregados
     }
 
-    function modoDesenho() {
-        drawingMode = true;
-        tempCoords = [];
-        if (tempPolyline) tempPolyline.setMap(null);
-        distanceOverlays.forEach(o => o.close());
-        distanceOverlays = [];
-        if (hoverInfo) hoverInfo.close();
-        if (hoverLine) hoverLine.setMap(null);
-        if (map) map.setOptions({ draggableCursor: 'default', draggingCursor: 'default' });
-        document.getElementById('cancelarDesenhoBtn').style.display = 'block';
-        alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
-    }
-
-    function cancelarDesenho() {
-        drawingMode = false;
-        tempCoords = [];
-        if (map) map.setOptions({ draggableCursor: null, draggingCursor: null });
-        if (tempPolyline) tempPolyline.setMap(null);
-        distanceOverlays.forEach(o => o.close());
-        distanceOverlays = [];
-        if (hoverInfo) hoverInfo.close();
-        if (hoverLine) hoverLine.setMap(null);
-        document.getElementById('cancelarDesenhoBtn').style.display = 'none';
-    }
 
     function adicionarPoligonoAoMapa(key, lote) {
         if (poligonos[key]) poligonos[key].setMap(null);
@@ -298,24 +209,12 @@
         let area = [];
         const coordText = document.getElementById('coordenadas').value.trim();
 
-        if (drawingMode && tempCoords.length > 0) {
-            area = tempCoords;
-            drawingMode = false;
-            if (map) map.setOptions({ draggableCursor: null, draggingCursor: null });
-            if (tempPolyline) tempPolyline.setMap(null);
-            distanceOverlays.forEach(o => o.close());
-            distanceOverlays = [];
-            if (hoverInfo) hoverInfo.close();
-            if (hoverLine) hoverLine.setMap(null);
-            document.getElementById('cancelarDesenhoBtn').style.display = 'none';
-        } else {
-            const linhas = coordText.split('\n');
-            for (const linha of linhas) {
-                const partes = linha.split(',');
-                const lat = parseFloat(partes[0]);
-                const lng = parseFloat(partes[1]);
-                if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
-            }
+        const linhas = coordText.split('\n');
+        for (const linha of linhas) {
+            const partes = linha.split(',');
+            const lat = parseFloat(partes[0]);
+            const lng = parseFloat(partes[1]);
+            if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
         }
 
         if (!loteamento || !nome || area.length < 3) {
