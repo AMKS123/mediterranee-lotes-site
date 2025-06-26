@@ -117,6 +117,10 @@
                       console.error('Erro ao processar lote:', lote, e);
                   }
               });
+          })
+          .catch(err => {
+              console.error('Erro ao carregar lotes', err);
+              alert('Falha ao carregar lotes');
           });
 
         map.addListener("click", (e) => {
@@ -302,10 +306,16 @@
                 descricao: descricao,
                 coordenadas: JSON.stringify(area)
             })
+        })
+        .then(r => r.text())
+        .then(() => {
+            limparFormulario();
+            alert('Lote salvo com sucesso!');
+        })
+        .catch(err => {
+            console.error('Erro ao salvar lote', err);
+            alert('Falha ao salvar lote');
         });
-
-        limparFormulario();
-        alert("Lote salvo com sucesso!");
     }
 
     function excluirLote() {
@@ -326,6 +336,12 @@
                 action: 'delete',
                 id: selecionado
             })
+        })
+        .then(r => r.text())
+        .then(() => alert('Lote excluído com sucesso!'))
+        .catch(err => {
+            console.error('Erro ao excluir lote', err);
+            alert('Falha ao excluir lote');
         });
     }
 
