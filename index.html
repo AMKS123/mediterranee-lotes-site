@@ -131,6 +131,16 @@
           popularLoteamentos();
           filtrarLotesPorLoteamento();
         });
+
+      // 🎯 ESCONDER LABELS SE ZOOM FOR MUITO PEQUENO
+      map.addListener('zoom_changed', () => {
+        const zoom = map.getZoom();
+        for (const key in poligonos) {
+          if (poligonos[key].labelMarker) {
+            poligonos[key].labelMarker.setVisible(zoom >= 17); // ajuste nível como quiser
+          }
+        }
+      });
     }
 
     function popularLoteamentos() {
