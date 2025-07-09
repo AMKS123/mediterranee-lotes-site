@@ -82,7 +82,7 @@
     <label for="senhaInput">Senha de alteração:</label>
     <input type="password" id="senhaInput" placeholder="Digite a senha" />
 
-    <button onclick="adicionarOuAtualizarLote()">Salvar Lote</button>
+    <button onclick="adicionarOuAtualizarLote(event)">Salvar Lote</button>
   </div>
 
   <div id="map"></div>
@@ -251,7 +251,7 @@
       }
     }
 
-    function adicionarOuAtualizarLote() {
+    function adicionarOuAtualizarLote(event) {
       const nome = document.getElementById('nomeLote').value.trim();
       const descricao = document.getElementById('descricaoLote').value.trim();
       const loteamento = document.getElementById('loteamentoInput').value.trim();
@@ -277,6 +277,9 @@
       const metodo = loteEditando ? 'update' : 'add';
       loteEditando = null;
 
+      const salvarBtn = event.target;
+      salvarBtn.disabled = true;
+
       fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({
@@ -291,8 +294,11 @@
       .then(data => {
         if (!data.success) {
           alert('Erro: ' + data.error);
+          document.getElementById('senhaInput').style.border = '2px solid red';
+          document.getElementById('senhaInput').focus();
           return;
         }
+        document.getElementById('senhaInput').style.border = '';
         lotes[key] = { nome, descricao, area, loteamento, status };
         todosLoteamentos.add(loteamento);
         adicionarPoligonoAoMapa(key, lotes[key]);
@@ -302,7 +308,9 @@
         document.getElementById('loteamentoSelect').value = loteamento;
         limparFormulario();
         alert('Lote salvo com sucesso!');
-      });
+      })
+      .catch(err => alert('Erro ao salvar: ' + err))
+      .finally(() => salvarBtn.disabled = false);
     }
 
     function excluirLote() {
@@ -328,8 +336,11 @@
       .then(data => {
         if (!data.success) {
           alert('Erro: ' + data.error);
+          document.getElementById('senhaInput').style.border = '2px solid red';
+          document.getElementById('senhaInput').focus();
           return;
         }
+        document.getElementById('senhaInput').style.border = '';
         if (poligonos[selecionado]) {
           poligonos[selecionado].polygon.setMap(null);
           if (poligonos[selecionado].labelMarker)
@@ -365,7 +376,6 @@
       document.getElementById('loteamentoInput').value = '';
       document.getElementById('statusInput').value = 'Disponível';
       document.getElementById('coordenadas').value = '';
-      // NÃO limpa senha para facilitar ações em sequência
     }
   </script>
 
