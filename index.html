@@ -132,12 +132,11 @@
           filtrarLotesPorLoteamento();
         });
 
-      // 🎯 ESCONDER LABELS SE ZOOM FOR MUITO PEQUENO
       map.addListener('zoom_changed', () => {
         const zoom = map.getZoom();
         for (const key in poligonos) {
           if (poligonos[key].labelMarker) {
-            poligonos[key].labelMarker.setVisible(zoom >= 18); // ajuste nível como quiser
+            poligonos[key].labelMarker.setVisible(zoom >= 18);
           }
         }
       });
@@ -207,7 +206,7 @@
         map: map,
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
-          scale: 0, // Invisible icon
+          scale: 0,
         },
         label: {
           text: lote.nome,
@@ -316,6 +315,12 @@
     }
 
     function excluirLote() {
+      const senha = prompt("Digite a senha para excluir o lote:");
+      if (senha !== "353531") {
+        alert("Senha incorreta. Ação cancelada.");
+        return;
+      }
+
       const selecionado = document.getElementById('loteSelect').value;
       if (!selecionado || !lotes[selecionado]) {
         alert('Selecione um lote para excluir.');
@@ -344,6 +349,12 @@
     }
 
     function editarLote() {
+      const senha = prompt("Digite a senha para editar o lote:");
+      if (senha !== "353531") {
+        alert("Senha incorreta. Ação cancelada.");
+        return;
+      }
+
       const selecionado = document.getElementById('loteSelect').value;
       if (!selecionado || !lotes[selecionado]) {
         alert('Selecione um lote para editar.');
