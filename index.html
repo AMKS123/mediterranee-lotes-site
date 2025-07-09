@@ -48,16 +48,6 @@
     button:hover {
       background-color: #2980b9;
     }
-    .lote-label {
-      position: absolute;
-      color: #000;
-      font-size: 12px;
-      background: rgba(255, 255, 255, 0.7);
-      padding: 2px 4px;
-      border-radius: 3px;
-      text-align: center;
-      white-space: nowrap;
-    }
   </style>
 </head>
 <body>
@@ -172,7 +162,7 @@
       document.getElementById('dadosLote').innerHTML =
         'Nenhum lote selecionado.';
       for (const key in poligonos) {
-        poligonos[key].setOptions({
+        poligonos[key].polygon.setOptions({
           fillColor: corPorStatus(lotes[key].status),
           strokeColor: corPorStatus(lotes[key].status),
         });
@@ -181,10 +171,11 @@
 
     function adicionarPoligonoAoMapa(key, lote) {
       if (poligonos[key]) {
-        poligonos[key].setMap(null);
-        if (poligonos[key].labelOverlay)
-          poligonos[key].labelOverlay.setMap(null);
+        poligonos[key].polygon.setMap(null);
+        if (poligonos[key].labelMarker)
+          poligonos[key].labelMarker.setMap(null);
       }
+
       const polygon = new google.maps.Polygon({
         paths: lote.area,
         strokeColor: corPorStatus(lote.status),
@@ -194,38 +185,29 @@
         fillOpacity: 0.35,
         map: map,
       });
-      polygon.addListener('click', () => mostrarInfoLote(key));
-      poligonos[key] = polygon;
-      addLabelToPolygon(key, lote);
-    }
 
-    function addLabelToPolygon(key, lote) {
+      polygon.addListener('click', () => mostrarInfoLote(key));
+
       const bounds = new google.maps.LatLngBounds();
       lote.area.forEach((coord) => bounds.extend(coord));
       const center = bounds.getCenter();
 
-      const overlay = new google.maps.OverlayView();
-      overlay.onAdd = function () {
-        const div = document.createElement('div');
-        div.className = 'lote-label';
-        div.innerText = lote.nome;
-        this.div = div;
+      const labelMarker = new google.maps.Marker({
+        position: center,
+        map: map,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 0, // Invisible icon
+        },
+        label: {
+          text: lote.nome,
+          color: '#000',
+          fontSize: '12px',
+          fontWeight: 'bold',
+        },
+      });
 
-        const panes = this.getPanes();
-        panes.overlayMouseTarget.appendChild(div);
-      };
-      overlay.draw = function () {
-        const projection = this.getProjection();
-        const position = projection.fromLatLngToDivPixel(center);
-        this.div.style.left = position.x + 'px';
-        this.div.style.top = position.y + 'px';
-      };
-      overlay.onRemove = function () {
-        this.div.parentNode.removeChild(this.div);
-        this.div = null;
-      };
-      overlay.setMap(map);
-      poligonos[key].labelOverlay = overlay;
+      poligonos[key] = { polygon: polygon, labelMarker: labelMarker };
     }
 
     function adicionarLoteAoDropdown(key, lote) {
@@ -241,13 +223,13 @@
     function destacarLote() {
       const selecionado = document.getElementById('loteSelect').value;
       for (const key in poligonos) {
-        poligonos[key].setOptions({
+        poligonos[key].polygon.setOptions({
           fillColor: corPorStatus(lotes[key].status),
           strokeColor: corPorStatus(lotes[key].status),
         });
       }
       if (selecionado && poligonos[selecionado]) {
-        poligonos[selecionado].setOptions({
+        poligonos[selecionado].polygon.setOptions({
           fillColor: '#0000FF',
           strokeColor: '#0000FF',
         });
@@ -330,9 +312,9 @@
         return;
       }
       if (poligonos[selecionado]) {
-        poligonos[selecionado].setMap(null);
-        if (poligonos[selecionado].labelOverlay)
-          poligonos[selecionado].labelOverlay.setMap(null);
+        poligonos[selecionado].polygon.setMap(null);
+        if (poligonos[selecionado].labelMarker)
+          poligonos[selecionado].labelMarker.setMap(null);
       }
       delete poligonos[selecionado];
       delete lotes[selecionado];
