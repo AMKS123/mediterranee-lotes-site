@@ -80,7 +80,6 @@
     <textarea id="descricaoLote" rows="3" placeholder="Descrição..."></textarea>
     <textarea id="coordenadas" rows="4" placeholder="Coordenadas lat,lon por linha..."></textarea>
     <button onclick="adicionarOuAtualizarLote()">Salvar Lote</button>
-    <button onclick="modoDesenho()">Desenhar Lote no Mapa</button>
 </div>
 
 <div id="map"></div>
@@ -91,16 +90,13 @@
     const lotes = {};
     const poligonos = {};
     let loteEditando = null;
-    let drawingMode = false;
-    let tempCoords = [];
-    let tempPolyline = null;
     let todosLoteamentos = new Set();
 
     function corPorStatus(status) {
-        if (status === "Disponível") return "#00cc44"; // Verde
-        if (status === "Reservado") return "#ffcc00"; // Amarelo
-        if (status === "Vendido") return "#ff4444"; // Vermelho
-        return "#0000FF"; // Azul como fallback
+        if (status === "Disponível") return "#00cc44";
+        if (status === "Reservado") return "#ffcc00";
+        if (status === "Vendido") return "#ff4444";
+        return "#0000FF";
     }
 
     function initMap() {
@@ -132,20 +128,6 @@
               popularLoteamentos();
               filtrarLotesPorLoteamento();
           });
-
-        map.addListener("click", (e) => {
-            if (drawingMode) {
-                tempCoords.push({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-                if (tempPolyline) tempPolyline.setMap(null);
-                tempPolyline = new google.maps.Polyline({
-                    path: tempCoords,
-                    map: map,
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 2,
-                });
-            }
-        });
     }
 
     function popularLoteamentos() {
@@ -172,19 +154,12 @@
             }
         }
         document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
-        // Limpar destaque dos polígonos
         for (const key in poligonos) {
             poligonos[key].setOptions({ 
                 fillColor: corPorStatus(lotes[key].status), 
                 strokeColor: corPorStatus(lotes[key].status) 
             });
         }
-    }
-
-    function modoDesenho() {
-        drawingMode = true;
-        tempCoords = [];
-        alert("Modo desenho ativado: clique no mapa para marcar os pontos do lote. Depois clique em 'Salvar Lote'.");
     }
 
     function adicionarPoligonoAoMapa(key, lote) {
@@ -246,22 +221,16 @@
         let area = [];
         const coordText = document.getElementById('coordenadas').value.trim();
 
-        if (drawingMode && tempCoords.length > 0) {
-            area = tempCoords;
-            drawingMode = false;
-            if (tempPolyline) tempPolyline.setMap(null);
-        } else {
-            const linhas = coordText.split('\n');
-            for (const linha of linhas) {
-                const partes = linha.split(',');
-                const lat = parseFloat(partes[0]);
-                const lng = parseFloat(partes[1]);
-                if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
-            }
+        const linhas = coordText.split('\n');
+        for (const linha of linhas) {
+            const partes = linha.split(',');
+            const lat = parseFloat(partes[0]);
+            const lng = parseFloat(partes[1]);
+            if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
         }
 
         if (!nome || !loteamento || area.length < 3) {
-            alert("Preencha o nome, loteamento e uma área válida (mínimo 3 pontos). Ou use o modo de desenho.");
+            alert("Preencha o nome, loteamento e uma área válida (mínimo 3 pontos).");
             return;
         }
 
