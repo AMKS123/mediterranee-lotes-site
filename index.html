@@ -1,91 +1,104 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Mediterranee Imobiliaria - Mapa de Lotes</title>
-    <meta charset="utf-8" />
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            display: flex;
-            height: 100vh;
-        }
-        #sidebar {
-            width: 25%;
-            padding: 20px;
-            background-color: #f5f5f5;
-            overflow-y: auto;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-        }
-        #map {
-            width: 75%;
-            height: 100%;
-        }
-        textarea, input, select, button {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        #infoLote {
-            border: 1px solid #ccc;
-            background-color: #fff;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-        }
-        button {
-            padding: 8px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-    </style>
+  <title>Mediterranee Imobiliaria - Mapa de Lotes</title>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    #sidebar {
+      width: 25%;
+      padding: 20px;
+      background-color: #f5f5f5;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    }
+    #map {
+      width: 75%;
+      height: 100%;
+    }
+    textarea,
+    input,
+    select,
+    button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    #infoLote {
+      border: 1px solid #ccc;
+      background-color: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    button {
+      padding: 8px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .lote-label {
+      position: absolute;
+      color: #000;
+      font-size: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 2px 4px;
+      border-radius: 3px;
+      text-align: center;
+      white-space: nowrap;
+    }
+  </style>
 </head>
 <body>
-
-<div id="sidebar">
+  <div id="sidebar">
     <h1>Mediterranee Imobiliaria</h1>
 
     <label for="loteamentoSelect">Selecione um loteamento:</label>
     <select id="loteamentoSelect" onchange="filtrarLotesPorLoteamento()">
-        <option value="">-- Escolha um loteamento --</option>
+      <option value="">-- Escolha um loteamento --</option>
     </select>
 
     <label for="loteSelect">Selecione um lote:</label>
     <select id="loteSelect" onchange="destacarLote()">
-        <option value="">-- Escolha um lote --</option>
+      <option value="">-- Escolha um lote --</option>
     </select>
     <button onclick="excluirLote()">Excluir Lote Selecionado</button>
     <button onclick="editarLote()">Editar Lote Selecionado</button>
 
     <div id="infoLote">
-        <h3>Descrição do lote:</h3>
-        <div id="dadosLote">Nenhum lote selecionado.</div>
+      <h3>Descrição do lote:</h3>
+      <div id="dadosLote">Nenhum lote selecionado.</div>
     </div>
 
     <h3>Cadastrar / Editar lote:</h3>
-    <input type="text" id="nomeLote" placeholder="Nome do lote">
-    <input type="text" id="loteamentoInput" placeholder="Nome do loteamento">
+    <input type="text" id="nomeLote" placeholder="Nome do lote" />
+    <input type="text" id="loteamentoInput" placeholder="Nome do loteamento" />
     <select id="statusInput">
-        <option value="Disponível">Disponível</option>
-        <option value="Reservado">Reservado</option>
-        <option value="Vendido">Vendido</option>
+      <option value="Disponível">Disponível</option>
+      <option value="Reservado">Reservado</option>
+      <option value="Vendido">Vendido</option>
     </select>
     <textarea id="descricaoLote" rows="3" placeholder="Descrição..."></textarea>
     <textarea id="coordenadas" rows="4" placeholder="Coordenadas lat,lon por linha..."></textarea>
     <button onclick="adicionarOuAtualizarLote()">Salvar Lote</button>
-</div>
+  </div>
 
-<div id="map"></div>
+  <div id="map"></div>
 
-<script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzKTopaoS-nJI8xnLnAMiu6oESJ_y7rM_IEDbhL_XK8NGpM4GjVf9kI4Kl2QQNQHDzZ/exec';
+  <script>
+    const API_URL =
+      'https://script.google.com/macros/s/AKfycbzKTopaoS-nJI8xnLnAMiu6oESJ_y7rM_IEDbhL_XK8NGpM4GjVf9kI4Kl2QQNQHDzZ/exec';
     let map;
     const lotes = {};
     const poligonos = {};
@@ -93,221 +106,281 @@
     let todosLoteamentos = new Set();
 
     function corPorStatus(status) {
-        if (status === "Disponível") return "#00cc44";
-        if (status === "Reservado") return "#ffcc00";
-        if (status === "Vendido") return "#ff4444";
-        return "#0000FF";
+      if (status === 'Disponível') return '#00cc44';
+      if (status === 'Reservado') return '#ffcc00';
+      if (status === 'Vendido') return '#ff4444';
+      return '#0000FF';
     }
 
     function initMap() {
-        map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: -20.899359547695433, lng: -46.99020733379837 },
-            zoom: 18,
-            mapTypeId: 'satellite'
-        });
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: -20.899359547695433, lng: -46.99020733379837 },
+        zoom: 18,
+        mapTypeId: 'satellite',
+      });
 
-        fetch(API_URL)
-          .then(response => response.json())
-          .then(data => {
-              todosLoteamentos = new Set();
-              data.forEach(lote => {
-                  try {
-                      lotes[lote.id] = {
-                          nome: lote.nome,
-                          descricao: lote.descricao,
-                          area: JSON.parse(lote.coordenadas),
-                          loteamento: lote.loteamento || "",
-                          status: lote.status || "Disponível"
-                      };
-                      todosLoteamentos.add(lote.loteamento || "");
-                      adicionarPoligonoAoMapa(lote.id, lotes[lote.id]);
-                  } catch (e) {
-                      console.error('Erro ao processar lote:', lote, e);
-                  }
-              });
-              popularLoteamentos();
-              filtrarLotesPorLoteamento();
+      fetch(API_URL)
+        .then((response) => response.json())
+        .then((data) => {
+          todosLoteamentos = new Set();
+          data.forEach((lote) => {
+            try {
+              lotes[lote.id] = {
+                nome: lote.nome,
+                descricao: lote.descricao,
+                area: JSON.parse(lote.coordenadas),
+                loteamento: lote.loteamento || '',
+                status: lote.status || 'Disponível',
+              };
+              todosLoteamentos.add(lote.loteamento || '');
+              adicionarPoligonoAoMapa(lote.id, lotes[lote.id]);
+            } catch (e) {
+              console.error('Erro ao processar lote:', lote, e);
+            }
           });
+          popularLoteamentos();
+          filtrarLotesPorLoteamento();
+        });
     }
 
     function popularLoteamentos() {
-        const loteamentoSelect = document.getElementById('loteamentoSelect');
-        loteamentoSelect.innerHTML = '<option value="">-- Escolha um loteamento --</option>';
-        Array.from(todosLoteamentos)
-            .filter(l => l && l.trim() !== "")
-            .sort()
-            .forEach(l => {
-                const option = document.createElement('option');
-                option.value = l;
-                option.text = l;
-                loteamentoSelect.appendChild(option);
-            });
+      const loteamentoSelect = document.getElementById('loteamentoSelect');
+      loteamentoSelect.innerHTML =
+        '<option value="">-- Escolha um loteamento --</option>';
+      Array.from(todosLoteamentos)
+        .filter((l) => l && l.trim() !== '')
+        .sort()
+        .forEach((l) => {
+          const option = document.createElement('option');
+          option.value = l;
+          option.text = l;
+          loteamentoSelect.appendChild(option);
+        });
     }
 
     function filtrarLotesPorLoteamento() {
-        const loteamentoSelecionado = document.getElementById('loteamentoSelect').value;
-        const loteSelect = document.getElementById('loteSelect');
-        loteSelect.innerHTML = '<option value="">-- Escolha um lote --</option>';
-        for (const key in lotes) {
-            if (lotes[key].loteamento === loteamentoSelecionado) {
-                adicionarLoteAoDropdown(key, lotes[key]);
-            }
+      const loteamentoSelecionado =
+        document.getElementById('loteamentoSelect').value;
+      const loteSelect = document.getElementById('loteSelect');
+      loteSelect.innerHTML =
+        '<option value="">-- Escolha um lote --</option>';
+      for (const key in lotes) {
+        if (lotes[key].loteamento === loteamentoSelecionado) {
+          adicionarLoteAoDropdown(key, lotes[key]);
         }
-        document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
-        for (const key in poligonos) {
-            poligonos[key].setOptions({ 
-                fillColor: corPorStatus(lotes[key].status), 
-                strokeColor: corPorStatus(lotes[key].status) 
-            });
-        }
+      }
+      document.getElementById('dadosLote').innerHTML =
+        'Nenhum lote selecionado.';
+      for (const key in poligonos) {
+        poligonos[key].setOptions({
+          fillColor: corPorStatus(lotes[key].status),
+          strokeColor: corPorStatus(lotes[key].status),
+        });
+      }
     }
 
     function adicionarPoligonoAoMapa(key, lote) {
-        if (poligonos[key]) poligonos[key].setMap(null);
-        const polygon = new google.maps.Polygon({
-            paths: lote.area,
-            strokeColor: corPorStatus(lote.status),
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: corPorStatus(lote.status),
-            fillOpacity: 0.35,
-            map: map,
-        });
-        polygon.addListener("click", () => mostrarInfoLote(key));
-        poligonos[key] = polygon;
+      if (poligonos[key]) {
+        poligonos[key].setMap(null);
+        if (poligonos[key].labelOverlay)
+          poligonos[key].labelOverlay.setMap(null);
+      }
+      const polygon = new google.maps.Polygon({
+        paths: lote.area,
+        strokeColor: corPorStatus(lote.status),
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: corPorStatus(lote.status),
+        fillOpacity: 0.35,
+        map: map,
+      });
+      polygon.addListener('click', () => mostrarInfoLote(key));
+      poligonos[key] = polygon;
+      addLabelToPolygon(key, lote);
+    }
+
+    function addLabelToPolygon(key, lote) {
+      const bounds = new google.maps.LatLngBounds();
+      lote.area.forEach((coord) => bounds.extend(coord));
+      const center = bounds.getCenter();
+
+      const overlay = new google.maps.OverlayView();
+      overlay.onAdd = function () {
+        const div = document.createElement('div');
+        div.className = 'lote-label';
+        div.innerText = lote.nome;
+        this.div = div;
+
+        const panes = this.getPanes();
+        panes.overlayMouseTarget.appendChild(div);
+      };
+      overlay.draw = function () {
+        const projection = this.getProjection();
+        const position = projection.fromLatLngToDivPixel(center);
+        this.div.style.left = position.x + 'px';
+        this.div.style.top = position.y + 'px';
+      };
+      overlay.onRemove = function () {
+        this.div.parentNode.removeChild(this.div);
+        this.div = null;
+      };
+      overlay.setMap(map);
+      poligonos[key].labelOverlay = overlay;
     }
 
     function adicionarLoteAoDropdown(key, lote) {
-        const select = document.getElementById('loteSelect');
-        if (!document.querySelector(`#loteSelect option[value='${key}']`)) {
-            const option = document.createElement('option');
-            option.value = key;
-            option.text = lote.nome;
-            select.appendChild(option);
-        }
+      const select = document.getElementById('loteSelect');
+      if (!document.querySelector(`#loteSelect option[value='${key}']`)) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.text = lote.nome;
+        select.appendChild(option);
+      }
     }
 
     function destacarLote() {
-        const selecionado = document.getElementById('loteSelect').value;
-        for (const key in poligonos) {
-            poligonos[key].setOptions({ 
-                fillColor: corPorStatus(lotes[key].status), 
-                strokeColor: corPorStatus(lotes[key].status)
-            });
-        }
-        if (selecionado && poligonos[selecionado]) {
-            poligonos[selecionado].setOptions({ fillColor: '#0000FF', strokeColor: '#0000FF' });
-            const bounds = new google.maps.LatLngBounds();
-            lotes[selecionado].area.forEach(coord => bounds.extend(coord));
-            map.fitBounds(bounds);
-            mostrarInfoLote(selecionado);
-        } else {
-            document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
-        }
+      const selecionado = document.getElementById('loteSelect').value;
+      for (const key in poligonos) {
+        poligonos[key].setOptions({
+          fillColor: corPorStatus(lotes[key].status),
+          strokeColor: corPorStatus(lotes[key].status),
+        });
+      }
+      if (selecionado && poligonos[selecionado]) {
+        poligonos[selecionado].setOptions({
+          fillColor: '#0000FF',
+          strokeColor: '#0000FF',
+        });
+        const bounds = new google.maps.LatLngBounds();
+        lotes[selecionado].area.forEach((coord) => bounds.extend(coord));
+        map.fitBounds(bounds);
+        mostrarInfoLote(selecionado);
+      } else {
+        document.getElementById('dadosLote').innerHTML =
+          'Nenhum lote selecionado.';
+      }
     }
 
     function mostrarInfoLote(key) {
-        if (lotes[key]) {
-            const descricaoFormatada = lotes[key].descricao.replace(/\n/g, "<br>");
-            document.getElementById('dadosLote').innerHTML = `<strong>Nome:</strong> ${lotes[key].nome}<br><strong>Loteamento:</strong> ${lotes[key].loteamento}<br><strong>Status:</strong> ${lotes[key].status}<br><strong>Descrição:</strong><br>${descricaoFormatada}`;
-        }
+      if (lotes[key]) {
+        const descricaoFormatada = lotes[key].descricao.replace(
+          /\n/g,
+          '<br>'
+        );
+        document.getElementById(
+          'dadosLote'
+        ).innerHTML = `<strong>Nome:</strong> ${lotes[key].nome}<br><strong>Loteamento:</strong> ${lotes[key].loteamento}<br><strong>Status:</strong> ${lotes[key].status}<br><strong>Descrição:</strong><br>${descricaoFormatada}`;
+      }
     }
 
     function adicionarOuAtualizarLote() {
-        const nome = document.getElementById('nomeLote').value.trim();
-        const descricao = document.getElementById('descricaoLote').value.trim();
-        const loteamento = document.getElementById('loteamentoInput').value.trim();
-        const status = document.getElementById('statusInput').value;
-        let area = [];
-        const coordText = document.getElementById('coordenadas').value.trim();
+      const nome = document.getElementById('nomeLote').value.trim();
+      const descricao = document.getElementById('descricaoLote').value.trim();
+      const loteamento = document.getElementById('loteamentoInput').value.trim();
+      const status = document.getElementById('statusInput').value;
+      let area = [];
+      const coordText = document.getElementById('coordenadas').value.trim();
 
-        const linhas = coordText.split('\n');
-        for (const linha of linhas) {
-            const partes = linha.split(',');
-            const lat = parseFloat(partes[0]);
-            const lng = parseFloat(partes[1]);
-            if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
-        }
+      const linhas = coordText.split('\n');
+      for (const linha of linhas) {
+        const partes = linha.split(',');
+        const lat = parseFloat(partes[0]);
+        const lng = parseFloat(partes[1]);
+        if (!isNaN(lat) && !isNaN(lng)) area.push({ lat, lng });
+      }
 
-        if (!nome || !loteamento || area.length < 3) {
-            alert("Preencha o nome, loteamento e uma área válida (mínimo 3 pontos).");
-            return;
-        }
+      if (!nome || !loteamento || area.length < 3) {
+        alert('Preencha o nome, loteamento e uma área válida (mínimo 3 pontos).');
+        return;
+      }
 
-        let key = loteEditando || "lote_" + Date.now();
-        const metodo = loteEditando ? 'update' : 'add';
-        loteEditando = null;
+      let key = loteEditando || 'lote_' + Date.now();
+      const metodo = loteEditando ? 'update' : 'add';
+      loteEditando = null;
 
-        lotes[key] = { nome, descricao, area, loteamento, status };
-        todosLoteamentos.add(loteamento);
-        adicionarPoligonoAoMapa(key, lotes[key]);
-        popularLoteamentos();
-        filtrarLotesPorLoteamento();
-        adicionarLoteAoDropdown(key, lotes[key]);
-        document.getElementById('loteamentoSelect').value = loteamento;
+      lotes[key] = { nome, descricao, area, loteamento, status };
+      todosLoteamentos.add(loteamento);
+      adicionarPoligonoAoMapa(key, lotes[key]);
+      popularLoteamentos();
+      filtrarLotesPorLoteamento();
+      adicionarLoteAoDropdown(key, lotes[key]);
+      document.getElementById('loteamentoSelect').value = loteamento;
 
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: metodo,
-                id: key,
-                nome: nome,
-                descricao: descricao,
-                loteamento: loteamento,
-                status: status,
-                coordenadas: JSON.stringify(area)
-            })
-        });
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: metodo,
+          id: key,
+          nome: nome,
+          descricao: descricao,
+          loteamento: loteamento,
+          status: status,
+          coordenadas: JSON.stringify(area),
+        }),
+      });
 
-        limparFormulario();
-        alert("Lote salvo com sucesso!");
+      limparFormulario();
+      alert('Lote salvo com sucesso!');
     }
 
     function excluirLote() {
-        const selecionado = document.getElementById('loteSelect').value;
-        if (!selecionado || !lotes[selecionado]) {
-            alert("Selecione um lote para excluir.");
-            return;
-        }
-        if (poligonos[selecionado]) poligonos[selecionado].setMap(null);
-        delete poligonos[selecionado];
-        delete lotes[selecionado];
-        document.querySelector(`#loteSelect option[value='${selecionado}']`).remove();
-        document.getElementById('dadosLote').innerHTML = "Nenhum lote selecionado.";
+      const selecionado = document.getElementById('loteSelect').value;
+      if (!selecionado || !lotes[selecionado]) {
+        alert('Selecione um lote para excluir.');
+        return;
+      }
+      if (poligonos[selecionado]) {
+        poligonos[selecionado].setMap(null);
+        if (poligonos[selecionado].labelOverlay)
+          poligonos[selecionado].labelOverlay.setMap(null);
+      }
+      delete poligonos[selecionado];
+      delete lotes[selecionado];
+      document
+        .querySelector(`#loteSelect option[value='${selecionado}']`)
+        .remove();
+      document.getElementById('dadosLote').innerHTML =
+        'Nenhum lote selecionado.';
 
-        fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                action: 'delete',
-                id: selecionado
-            })
-        });
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'delete',
+          id: selecionado,
+        }),
+      });
     }
 
     function editarLote() {
-        const selecionado = document.getElementById('loteSelect').value;
-        if (!selecionado || !lotes[selecionado]) {
-            alert("Selecione um lote para editar.");
-            return;
-        }
-        const lote = lotes[selecionado];
-        document.getElementById('nomeLote').value = lote.nome;
-        document.getElementById('descricaoLote').value = lote.descricao;
-        document.getElementById('loteamentoInput').value = lote.loteamento;
-        document.getElementById('statusInput').value = lote.status || "Disponível";
-        document.getElementById('coordenadas').value = lote.area.map(p => `${p.lat},${p.lng}`).join('\n');
-        loteEditando = selecionado;
-        alert("Lote carregado para edição.");
+      const selecionado = document.getElementById('loteSelect').value;
+      if (!selecionado || !lotes[selecionado]) {
+        alert('Selecione um lote para editar.');
+        return;
+      }
+      const lote = lotes[selecionado];
+      document.getElementById('nomeLote').value = lote.nome;
+      document.getElementById('descricaoLote').value = lote.descricao;
+      document.getElementById('loteamentoInput').value = lote.loteamento;
+      document.getElementById('statusInput').value = lote.status || 'Disponível';
+      document.getElementById('coordenadas').value = lote.area
+        .map((p) => `${p.lat},${p.lng}`)
+        .join('\n');
+      loteEditando = selecionado;
+      alert('Lote carregado para edição.');
     }
 
     function limparFormulario() {
-        document.getElementById('nomeLote').value = "";
-        document.getElementById('descricaoLote').value = "";
-        document.getElementById('loteamentoInput').value = "";
-        document.getElementById('statusInput').value = "Disponível";
-        document.getElementById('coordenadas').value = "";
+      document.getElementById('nomeLote').value = '';
+      document.getElementById('descricaoLote').value = '';
+      document.getElementById('loteamentoInput').value = '';
+      document.getElementById('statusInput').value = 'Disponível';
+      document.getElementById('coordenadas').value = '';
     }
-</script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
+  </script>
+  <script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"
+  ></script>
 </body>
 </html>
