@@ -185,13 +185,15 @@
         map: map,
       });
 
-      // ✅ CLICOU NO POLÍGONO: seleciona loteamento, filtra e destaca
+      // ✅ CLICOU NO POLÍGONO → força loteamento + filtra + garante timing
       polygon.addListener('click', () => {
         const loteamentoDoLote = lote.loteamento || '';
         document.getElementById('loteamentoSelect').value = loteamentoDoLote;
         filtrarLotesPorLoteamento();
-        document.getElementById('loteSelect').value = key;
-        destacarLote();
+        setTimeout(() => {
+          document.getElementById('loteSelect').value = key;
+          destacarLote();
+        }, 0);
       });
 
       const bounds = new google.maps.LatLngBounds();
@@ -247,10 +249,8 @@
       }
     }
 
-    // ➜ suas funções adicionarOuAtualizarLote, excluirLote, editarLote, limparFormulario ficam iguais
-    // ➜ Todas já com senha .trim(), fallback, JSON fetch certo
+    // ➜ Aqui seguem suas funções adicionarOuAtualizarLote, excluirLote, editarLote, limparFormulario conforme já ajustamos!
 
-    // 🗺️ Inicializa o mapa
   </script>
 
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap"></script>
