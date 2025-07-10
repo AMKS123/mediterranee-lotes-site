@@ -2,21 +2,19 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Mediterranee Imobiliaria v1.1</title>
+  <title>Mediterranee Imobiliaria v1.1-botões</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    /* === RESET E BASE === */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0 }
     body {
       font-family: Arial, sans-serif;
       display: flex;
       min-height: 100vh;
       background: #f0f2f5;
     }
-    button, select, input, textarea { font-size: 1rem; }
 
-    /* === LAYOUT === */
+    /* SIDEBAR */
     #sidebar {
       width: 300px;
       background: #fff;
@@ -24,87 +22,102 @@
       overflow-y: auto;
       box-shadow: 2px 0 5px rgba(0,0,0,0.1);
     }
-    #map { flex: 1; }
+    h1 { font-size: 1.6rem; text-align: center; margin-bottom: 1rem }
 
-    /* === FORM COMPONENTES === */
-    h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1rem; }
-    label { display: block; margin-top: 0.75rem; font-weight: bold; }
-    input, select, textarea {
-      width: 100%; margin-top: .25rem; padding: .5rem;
-      border: 1px solid #ccc; border-radius: 4px;
+    /* CONTAINERS DE BOTÕES */
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      margin-bottom: 1rem;
     }
-    button {
-      background: #3498db; color: #fff; border: none;
-      padding: .6rem; margin-top: .5rem; border-radius: 4px;
+    .btn {
+      flex: 1 1 calc(50% - .5rem);
+      padding: .8rem;
+      background: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 1rem;
       cursor: pointer;
+      transition: background .2s;
     }
-    button + button { margin-left: .5rem; }
+    .btn:hover { background: #2980b9 }
+    .btn.active { background: #2c3e50 }
 
-    /* === TOASTS === */
+    /* INFO E FORMULÁRIO */
+    #infoLote {
+      background: #fafafa;
+      border: 1px solid #ddd;
+      padding: .5rem;
+      margin-bottom: 1rem;
+    }
+    label { display: block; margin-top: .75rem; font-weight: bold }
+    input, select, textarea, .btn-action {
+      width: 100%; margin-top: .25rem; padding: .6rem;
+      border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1rem;
+    }
+    .btn-action {
+      background: #e67e22; color: #fff; border: none;
+      margin-top: .8rem; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-action:hover { background: #d35400 }
+
+    /* TOASTS */
     #toast-container {
       position: fixed; top: 1rem; right: 1rem;
       display: flex; flex-direction: column; gap: .5rem;
       z-index: 9999;
     }
     .toast {
-      padding: .75rem 1rem;
-      border-radius: 4px;
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      opacity: 0; transform: translateX(100%);
+      padding: .75rem 1rem; border-radius:4px; color:#fff;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+      opacity:0; transform:translateX(100%);
       transition: all .3s ease;
     }
-    .toast.show {
-      opacity: 1; transform: translateX(0);
-    }
-    .toast.success { background: #28a745; }
-    .toast.error   { background: #dc3545; }
+    .toast.show { opacity:1; transform:translateX(0) }
+    .toast.success { background:#28a745 }
+    .toast.error   { background:#dc3545 }
 
-    /* === RESPONSIVO === */
+    /* RESPONSIVO */
     @media (max-width: 768px) {
-      body { flex-direction: column; }
+      body { flex-direction: column }
       #sidebar {
-        width: 100%; height: auto;
-        box-shadow: none; border-bottom: 1px solid #ccc;
+        width:100%; box-shadow:none;
+        border-bottom:1px solid #ccc;
       }
-      #map { height: 60vh; }
+      #map { height:60vh }
     }
   </style>
 </head>
 <body>
   <div id="sidebar">
-    <h1>Mediterranee v1.1</h1>
+    <h1>Escolha o Loteamento</h1>
 
-    <!-- Campo para usuário (log) -->
-    <label for="usuarioInput">Usuário (nome)</label>
-    <input id="usuarioInput" placeholder="Seu nome ou e-mail">
+    <!-- BOTÕES DE LOTEAMENTOS -->
+    <div id="loteamentosContainer" class="btn-group"></div>
 
-    <label for="loteamentoSelect">Loteamento</label>
-    <select id="loteamentoSelect" onchange="filtrarLotesPorLoteamento()">
-      <option value="">-- escolha --</option>
-    </select>
+    <!-- BOTÕES DE LOTES -->
+    <h1 style="font-size:1.2rem;margin-top:1rem">Selecione o Lote</h1>
+    <div id="lotesContainer" class="btn-group"></div>
 
-    <label for="loteSelect">Lote</label>
-    <select id="loteSelect" onchange="destacarLote()">
-      <option value="">-- escolha --</option>
-    </select>
-
-    <div style="margin-top:.5rem;">
-      <button onclick="excluirLote()">Excluir</button>
-      <button onclick="editarLote()">Editar</button>
-    </div>
-
-    <div id="infoLote" style="margin-top:1rem; padding: .5rem; background:#fafafa; border:1px solid #ddd;">
+    <div id="infoLote">
       <strong>Info do lote:</strong>
       <div id="dadosLote">Nenhum lote selecionado.</div>
     </div>
 
-    <h2 style="margin-top:1rem; font-size:1.2rem;">Cadastrar / Editar</h2>
+    <h1 style="font-size:1.2rem">Cadastrar / Editar</h1>
+
+    <label for="usuarioInput">Usuário (para log)</label>
+    <input id="usuarioInput" placeholder="Seu nome">
 
     <label for="nomeLote">Nome do lote</label>
     <input id="nomeLote" placeholder="Ex: Lote 01">
 
-    <label for="loteamentoInput">Loteamento (novo)</label>
+    <label for="loteamentoInput">Novo loteamento</label>
     <input id="loteamentoInput" placeholder="Ex: Bela Vista">
 
     <label for="statusInput">Status</label>
@@ -118,22 +131,25 @@
     <textarea id="descricaoLote" rows="3"></textarea>
 
     <label for="coordenadas">Coordenadas (lat,lng)</label>
-    <textarea id="coordenadas" rows="4" placeholder="cada linha uma coordenada"></textarea>
+    <textarea id="coordenadas" rows="4"></textarea>
 
     <label for="senhaInput">Senha</label>
-    <input id="senhaInput" type="password" placeholder="senha de alteração">
+    <input id="senhaInput" type="password" placeholder="********">
 
-    <button onclick="adicionarOuAtualizarLote(event)">Salvar Lote</button>
+    <button class="btn-action" onclick="adicionarOuAtualizarLote(event)">
+      Salvar Lote
+    </button>
+    <button class="btn-action" onclick="excluirLote()" style="background:#c0392b">
+      Excluir Lote
+    </button>
   </div>
 
   <div id="map"></div>
-
-  <!-- Toasts -->
   <div id="toast-container"></div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyVTVvM5_ns-9qREwe3YN0r8QgarZ7-20nZ6UX3PhXDXX0RCbbCojkBSNQfJoQbRrsf/exec';
-    let map, lotes = {}, poligonos = {}, loteEditando = null, todosLoteamentos = new Set();
+    let map, lotes={}, poligonos={}, selecionadoLoteamento=null, selecionadoLote=null;
 
     function corPorStatus(s) {
       return s==='Disponível'? '#00cc44'
@@ -142,133 +158,139 @@
            : '#0000FF';
     }
 
-    /** Inicializa mapa e carrega lotes */
     function initMap() {
       map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: -20.89936, lng: -46.99021 }, zoom: 18, mapTypeId: 'satellite'
+        center:{lat:-20.89936,lng:-46.99021}, zoom:18, mapTypeId:'satellite'
       });
-
-      fetch(API_URL)
-        .then(r => r.json())
-        .then(data => {
-          data.forEach(l => {
-            try {
-              lotes[l.id] = {
-                nome: l.nome, descricao: l.descricao,
-                area: JSON.parse(l.coordenadas),
-                loteamento: l.loteamento, status: l.status
-              };
-              todosLoteamentos.add(l.loteamento);
-              adicionarPoligonoAoMapa(l.id, lotes[l.id]);
-            } catch(e){ console.error(e); }
-          });
-          popularLoteamentos();
-          filtrarLotesPorLoteamento();
-        })
-        .catch(e => showToast('Erro ao carregar lotes','error'));
-    }
-
-    function popularLoteamentos() {
-      const sel = document.getElementById('loteamentoSelect');
-      sel.innerHTML = '<option value="">-- escolha --</option>';
-      Array.from(todosLoteamentos).filter(v=>v).sort().forEach(v=>{
-        const o = document.createElement('option');
-        o.value = o.text = v; sel.appendChild(o);
-      });
-    }
-
-    function filtrarLotesPorLoteamento() {
-      const loteamento = document.getElementById('loteamentoSelect').value;
-      const sel = document.getElementById('loteSelect');
-      sel.innerHTML = '<option value="">-- escolha --</option>';
-      Object.entries(lotes).forEach(([id, l]) => {
-        poligonos[id].polygon.setOptions({
-          fillColor: corPorStatus(l.status),
-          strokeColor: corPorStatus(l.status)
+      fetch(API_URL).then(r=>r.json()).then(data=>{
+        data.forEach(l=>{
+          lotes[l.id] = {
+            nome:l.nome,
+            descricao:l.descricao,
+            loteamento:l.loteamento,
+            status:l.status,
+            area: JSON.parse(l.coordenadas)
+          };
+          adicionarPoligonoAoMapa(l.id,lotes[l.id]);
         });
-        if (l.loteamento === loteamento) {
-          const o = document.createElement('option');
-          o.value = id; o.text = l.nome; sel.appendChild(o);
-        }
-      });
-      document.getElementById('dadosLote').innerText = 'Nenhum lote selecionado.';
+        renderLoteamentos();
+      }).catch(e=>showToast('Erro ao carregar','error'));
     }
 
-    function adicionarPoligonoAoMapa(id, lote) {
-      if (poligonos[id]) {
-        poligonos[id].polygon.setMap(null);
-        poligonos[id].labelMarker.setMap(null);
-      }
-      const poly = new google.maps.Polygon({
-        paths: lote.area, fillColor: corPorStatus(lote.status),
-        strokeColor: corPorStatus(lote.status), fillOpacity: .35,
-        strokeOpacity: .8, strokeWeight: 2, map
+    /* RENDERIZA BOTOES DE LOTEAMENTOS */
+    function renderLoteamentos() {
+      const cont = document.getElementById('loteamentosContainer');
+      cont.innerHTML = '';
+      const nomes = Array.from(new Set(Object.values(lotes).map(l=>l.loteamento)))
+        .filter(v=>v).sort();
+      nomes.forEach(nome=>{
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.innerText = nome;
+        btn.onclick = ()=> {
+          selecionadoLoteamento = nome;
+          selecionadoLote = null;
+          highlightGroup(cont, btn);
+          renderLotes(nome);
+          clearInfo();
+        };
+        cont.appendChild(btn);
       });
-      poly.addListener('click', () => {
-        document.getElementById('loteamentoSelect').value = lote.loteamento;
-        filtrarLotesPorLoteamento();
-        setTimeout(() => {
-          const sel = document.getElementById('loteSelect');
-          if (!sel.querySelector(`option[value="${id}"]`)) {
-            const o = document.createElement('option');
-            o.value = id; o.text = lote.nome; sel.appendChild(o);
-          }
-          sel.value = id; destacarLote();
-        }, 0);
+    }
+
+    /* RENDERIZA BOTOES DE LOTES */
+    function renderLotes(loteamento) {
+      const cont = document.getElementById('lotesContainer');
+      cont.innerHTML = '';
+      Object.entries(lotes)
+        .filter(([_,l])=>l.loteamento===loteamento)
+        .forEach(([id,l])=>{
+          const btn = document.createElement('button');
+          btn.className = 'btn';
+          btn.innerText = l.nome;
+          btn.onclick = ()=> {
+            selecionadoLote = id;
+            highlightGroup(cont, btn);
+            destacarLote(id);
+          };
+          cont.appendChild(btn);
+        });
+    }
+
+    /* ADICIONA POLIGONO E RÓTULO NO MAPA */
+    function adicionarPoligonoAoMapa(id,lote) {
+      const poly = new google.maps.Polygon({
+        paths: lote.area,
+        strokeColor: corPorStatus(lote.status),
+        fillColor: corPorStatus(lote.status),
+        strokeOpacity: .8, fillOpacity:.35,
+        map
+      });
+      poly.addListener('click', ()=> {
+        const btns = document.querySelectorAll('#loteamentosContainer .btn');
+        btns.forEach(b=>{ if (b.innerText===lote.loteamento) b.click(); });
+        setTimeout(()=>{
+          const loteBtns = document.querySelectorAll('#lotesContainer .btn');
+          loteBtns.forEach(b=>{ if (b.innerText===lote.nome) b.click(); });
+        },0);
       });
       const bounds = new google.maps.LatLngBounds();
       lote.area.forEach(c=>bounds.extend(c));
-      const label = new google.maps.Marker({
-        position: bounds.getCenter(), map,
-        icon: { path: google.maps.SymbolPath.CIRCLE, scale:0 },
-        label: { text: lote.nome, color:'#000', fontSize:'10px'}
+      const marker = new google.maps.Marker({
+        position: bounds.getCenter(),
+        icon:{path:google.maps.SymbolPath.CIRCLE,scale:0},
+        label:{text:lote.nome,color:'#000',fontSize:'10px'},
+        map
       });
-      poligonos[id] = { polygon: poly, labelMarker: label };
+      poligonos[id] = { polygon: poly, marker };
     }
 
-    function destacarLote() {
-      const id = document.getElementById('loteSelect').value;
-      Object.entries(poligonos).forEach(([i, o])=>{
+    /* DESTAQUE DO LOTE */ 
+    function destacarLote(id) {
+      Object.entries(poligonos).forEach(([i,o])=>{
         o.polygon.setOptions({
           fillColor: corPorStatus(lotes[i].status),
           strokeColor: corPorStatus(lotes[i].status)
         });
       });
-      if (id && poligonos[id]) {
-        poligonos[id].polygon.setOptions({
-          fillColor: '#0000FF', strokeColor: '#0000FF'
-        });
-        const b = new google.maps.LatLngBounds();
-        lotes[id].area.forEach(c=>b.extend(c));
-        map.fitBounds(b);
-        mostrarInfoLote(id);
-      } else {
-        document.getElementById('dadosLote').innerText = 'Nenhum lote selecionado.';
-      }
+      if (!id) return;
+      const o = poligonos[id];
+      o.polygon.setOptions({ fillColor:'#0000FF', strokeColor:'#0000FF' });
+      const b = new google.maps.LatLngBounds();
+      lotes[id].area.forEach(c=>b.extend(c));
+      map.fitBounds(b);
+      mostrarInfo(id);
     }
 
-    function mostrarInfoLote(id) {
+    function mostrarInfo(id) {
       const l = lotes[id];
       document.getElementById('dadosLote').innerHTML =
-        `<strong>${l.nome}</strong><br>` +
-        `Loteamento: ${l.loteamento}<br>` +
-        `Status: ${l.status}<br>` +
-        `Descrição:<br>${l.descricao.replace(/\n/g,'<br>')}`;
+        `<strong>${l.nome}</strong><br>`+
+        `Loteamento: ${l.loteamento}<br>`+
+        `Status: ${l.status}<br>`+
+        `Desc.:<br>${l.descricao.replace(/\n/g,'<br>')}`;
+    }
+    function clearInfo(){
+      document.getElementById('dadosLote').innerText = 'Nenhum lote selecionado.';
     }
 
-    // ——— CRUD ———
+    /* UTIL: marca botão ativo num grupo */
+    function highlightGroup(container, activeBtn) {
+      container.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+      activeBtn.classList.add('active');
+    }
 
+    /* CRUD *—* Mesmas funções v1.1 com usuário */
     function limparFormulario() {
       loteEditando = null;
       ['nomeLote','loteamentoInput','descricaoLote','coordenadas','senhaInput']
         .forEach(id=>document.getElementById(id).value='');
       document.getElementById('statusInput').value='Disponível';
     }
-
     function editarLote() {
-      const id = document.getElementById('loteSelect').value;
-      if (!id) return showToast('Selecione um lote','error');
-      const l = lotes[id]; loteEditando = id;
+      if (!selecionadoLote) return showToast('Selecione um lote','error');
+      const l = lotes[selecionadoLote];
+      loteEditando = selecionadoLote;
       document.getElementById('nomeLote').value = l.nome;
       document.getElementById('loteamentoInput').value = l.loteamento;
       document.getElementById('statusInput').value = l.status;
@@ -276,27 +298,25 @@
       document.getElementById('coordenadas').value =
         l.area.map(c=>`${c.lat},${c.lng}`).join('\n');
     }
-
     function excluirLote() {
-      const id = document.getElementById('loteSelect').value;
-      if (!id) return showToast('Selecione um lote','error');
-      if (!confirm('Deseja excluir este lote?')) return;
-      const user = document.getElementById('usuarioInput').value.trim()||'anon';
+      if (!selecionadoLote) return showToast('Selecione um lote','error');
+      if (!confirm('Excluir este lote?')) return;
+      const user  = document.getElementById('usuarioInput').value.trim()||'anon';
       const senha = document.getElementById('senhaInput').value.trim();
       fetch(API_URL, {
         method:'POST',
-        body: JSON.stringify({ action:'delete', id, user, senha })
+        body: JSON.stringify({
+          action:'delete', id:selecionadoLote,
+          user, senha
+        })
       })
-      .then(res=>res.ok? res.json() : Promise.reject(res.status))
-      .then(r=> {
-        if (r.success) {
-          showToast(r.message,'success');
-          limparFormulario(); location.reload();
-        } else showToast(r.error,'error');
+      .then(r=>r.ok? r.json():Promise.reject(r.status))
+      .then(res=>{
+        if (res.success) { showToast(res.message,'success'); location.reload(); }
+        else showToast(res.error,'error');
       })
       .catch(e=> showToast('Erro ao excluir','error'));
     }
-
     function adicionarOuAtualizarLote(e) {
       e.preventDefault();
       const nome  = document.getElementById('nomeLote').value.trim();
@@ -306,50 +326,46 @@
       const raw   = document.getElementById('coordenadas').value.trim();
       const user  = document.getElementById('usuarioInput').value.trim()||'anon';
       const senha = document.getElementById('senhaInput').value.trim();
-
-      if (![nome,lotea,desc,raw,senha].every(v=>v)) {
+      if (![nome,lotea,desc,raw,senha].every(v=>v))
         return showToast('Preencha todos os campos','error');
-      }
-
-      const area = raw.split('\n').map(l=> {
+      const area = raw.split('\n').map(l=>{
         const [lat,lng] = l.split(',').map(v=>parseFloat(v));
         return { lat, lng };
       });
-
-      const action = loteEditando?'update':'add';
-      const id     = loteEditando|| Date.now().toString();
-
+      const act = loteEditando? 'update':'add';
+      const id  = loteEditando|| Date.now().toString();
       fetch(API_URL, {
         method:'POST',
         body: JSON.stringify({
-          action, id, nome, loteamento: lotea,
-          status: stat, descricao: desc,
-          coordenadas: JSON.stringify(area),
+          action:act, id, nome,
+          loteamento:lotea, status:stat,
+          descricao:desc, coordenadas:JSON.stringify(area),
           user, senha
         })
       })
-      .then(res=>res.ok?res.json():Promise.reject(res.status))
-      .then(r=> {
-        if (r.success) {
-          showToast(r.message,'success');
-          limparFormulario(); location.reload();
-        } else showToast(r.error,'error');
+      .then(r=>r.ok? r.json():Promise.reject(r.status))
+      .then(res=>{
+        if (res.success) {
+          showToast(res.message,'success');
+          limparFormulario();
+          setTimeout(()=> location.reload(),500);
+        } else showToast(res.error,'error');
       })
       .catch(e=> showToast('Erro ao salvar','error'));
     }
 
-    /** Exibe toast: type = 'success'|'error' */
-    function showToast(msg, type) {
+    /* TOASTS */
+    function showToast(msg,type) {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
       t.className = `toast ${type}`;
       t.innerText = msg;
       c.appendChild(t);
-      setTimeout(()=> t.classList.add('show'), 10);
-      setTimeout(()=> {
+      setTimeout(()=> t.classList.add('show'),10);
+      setTimeout(()=>{
         t.classList.remove('show');
-        setTimeout(()=> c.removeChild(t), 300);
-      }, 3000);
+        setTimeout(()=>c.removeChild(t),300);
+      },3000);
     }
   </script>
 
