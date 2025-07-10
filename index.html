@@ -185,13 +185,20 @@
         map: map,
       });
 
-      // ✅ CLICOU NO POLÍGONO → força loteamento + filtra + garante timing
+      // ✅ Blindagem para garantir loteamento, option, valor e destaque
       polygon.addListener('click', () => {
         const loteamentoDoLote = lote.loteamento || '';
         document.getElementById('loteamentoSelect').value = loteamentoDoLote;
         filtrarLotesPorLoteamento();
         setTimeout(() => {
-          document.getElementById('loteSelect').value = key;
+          const loteSelect = document.getElementById('loteSelect');
+          if (!document.querySelector(`#loteSelect option[value='${key}']`)) {
+            const option = document.createElement('option');
+            option.value = key;
+            option.text = lote.nome;
+            loteSelect.appendChild(option);
+          }
+          loteSelect.value = key;
           destacarLote();
         }, 0);
       });
@@ -249,7 +256,7 @@
       }
     }
 
-    // ➜ Aqui seguem suas funções adicionarOuAtualizarLote, excluirLote, editarLote, limparFormulario conforme já ajustamos!
+    // ➜ Mantenha aqui suas funções adicionarOuAtualizarLote, excluirLote, editarLote, limparFormulario já com senha, .trim() e fetch!
 
   </script>
 
