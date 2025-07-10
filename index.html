@@ -2,120 +2,69 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Mediterranee v1.1-botões</title>
+  <title>Mediterranee v1.1-botões + debug</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-
   <style>
-    /* 2. CSS MÍNIMO PARA MAPA */
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
+    html, body { height:100%; margin:0; padding:0; }
     body {
-      display: flex;
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      min-height: 100vh;
+      display:flex; min-height:100vh;
+      font-family:Arial,sans-serif;
+      background:#f0f2f5;
     }
     #sidebar {
-      width: 300px;
-      padding: 1rem;
-      background: #fff;
-      overflow-y: auto;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      width:300px; padding:1rem;
+      background:#fff; overflow-y:auto;
+      box-shadow:2px 0 5px rgba(0,0,0,0.1);
     }
     #map {
-      flex: 1;
-      height: 100%;
-      min-height: 200px;
+      flex:1; height:100%; min-height:200px;
     }
-    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 1rem }
-    .btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .5rem;
-      margin-bottom: 1rem;
-    }
+    h1 { font-size:1.4rem; text-align:center; margin-bottom:1rem }
+    .btn-group { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem }
     .btn {
-      flex: 1 1 calc(50% - .5rem);
-      padding: .8rem;
-      background: #3498db;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      text-align: center;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background .2s;
+      flex:1 1 calc(50% - .5rem);
+      padding:.8rem; background:#3498db; color:#fff;
+      border:none; border-radius:4px; text-align:center;
+      cursor:pointer; transition:background .2s;
     }
-    .btn:hover { background: #2980b9 }
-    .btn.active { background: #2c3e50 }
-
+    .btn:hover { background:#2980b9 }
+    .btn.active { background:#2c3e50 }
     #infoLote {
-      background: #fafafa;
-      border: 1px solid #ddd;
-      padding: .5rem;
-      margin-bottom: 1rem;
+      background:#fafafa; border:1px solid #ddd;
+      padding:.5rem; margin-bottom:1rem;
     }
-    label { display: block; margin-top: .75rem; font-weight: bold }
+    label { display:block; margin-top:.75rem; font-weight:bold }
     input, select, textarea {
-      width: 100%;
-      padding: .6rem;
-      margin-top: .25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 1rem;
+      width:100%; margin-top:.25rem; padding:.6rem;
+      border:1px solid #ccc; border-radius:4px;
+      font-size:1rem;
     }
     .btn-action {
-      width: 100%;
-      padding: .6rem;
-      margin-top: .8rem;
-      border: none;
-      border-radius: 4px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background .2s;
-      color: #fff;
+      width:100%; padding:.6rem; margin-top:.8rem;
+      border:none; border-radius:4px; color:#fff;
+      font-size:1rem; cursor:pointer;
+      transition:background .2s;
     }
-    .btn-action.save { background: #27ae60 }
-    .btn-action.save:hover { background: #219150 }
-    .btn-action.edit { background: #f1c40f; color: #000 }
-    .btn-action.edit:hover { background: #d4ac0d }
-    .btn-action.delete { background: #c0392b }
-    .btn-action.delete:hover { background: #a93226 }
-
-    /* toasts */
-    #toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: .5rem;
-      z-index: 9999;
-    }
+    .btn-action.save   { background:#27ae60 }
+    .btn-action.save:hover { background:#219150 }
+    .btn-action.edit   { background:#f1c40f; color:#000 }
+    .btn-action.edit:hover { background:#d4ac0d }
+    .btn-action.delete { background:#c0392b }
+    .btn-action.delete:hover { background:#a93226 }
+    #toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:9999 }
     .toast {
-      padding: .75rem 1rem;
-      border-radius: 4px;
-      color: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all .3s ease;
+      padding:.75rem 1rem; border-radius:4px; color:#fff;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+      opacity:0; transform:translateX(100%);
+      transition:all .3s ease;
     }
-    .toast.show { opacity: 1; transform: translateX(0) }
-    .toast.success { background: #28a745 }
-    .toast.error   { background: #dc3545 }
-
-    @media (max-width: 768px) {
-      body { flex-direction: column }
-      #sidebar {
-        width: 100%;
-        box-shadow: none;
-        border-bottom: 1px solid #ccc;
-      }
-      #map { height: 60vh }
+    .toast.show { opacity:1; transform:translateX(0) }
+    .toast.success { background:#28a745 }
+    .toast.error   { background:#dc3545 }
+    @media (max-width:768px) {
+      body { flex-direction:column }
+      #sidebar { width:100%; box-shadow:none; border-bottom:1px solid #ccc }
+      #map { height:60vh }
     }
   </style>
 </head>
@@ -125,7 +74,7 @@
     <h1>Escolha o Loteamento</h1>
     <div id="loteamentosContainer" class="btn-group"></div>
 
-    <h1 style="font-size:1.2rem; margin-top:1rem">Selecione o Lote</h1>
+    <h1 style="font-size:1.2rem;margin-top:1rem">Selecione o Lote</h1>
     <div id="lotesContainer" class="btn-group"></div>
 
     <div id="infoLote">
@@ -134,7 +83,6 @@
     </div>
 
     <h1 style="font-size:1.2rem">Cadastrar / Editar</h1>
-
     <label for="usuarioInput">Usuário (para log)</label>
     <input id="usuarioInput" placeholder="Seu nome">
 
@@ -160,24 +108,37 @@
     <label for="senhaInput">Senha</label>
     <input id="senhaInput" type="password" placeholder="********">
 
-    <button class="btn-action save" onclick="adicionarOuAtualizarLote(event)">
-      Salvar Lote
-    </button>
-    <button class="btn-action edit" onclick="editarLote()">
-      Editar Lote
-    </button>
-    <button class="btn-action delete" onclick="excluirLote()">
-      Excluir Lote
-    </button>
+    <button class="btn-action save"   onclick="adicionarOuAtualizarLote(event)">Salvar Lote</button>
+    <button class="btn-action edit"   onclick="editarLote()">Editar Lote</button>
+    <button class="btn-action delete" onclick="excluirLote()">Excluir Lote</button>
   </div>
 
   <div id="map"></div>
   <div id="toast-container"></div>
 
   <script>
+    // 1) Atualize aqui:
     const API_URL = 'https://script.google.com/macros/s/AKfycbyVTVvM5_ns-9qREwe3YN0r8QgarZ7-20nZ6UX3PhXDXX0RCbbCojkBSNQfJoQbRrsf/exec';
-    let map, lotes = {}, poligonos = {}, loteEditando = null;
-    let selecionadoLoteamento = null, selecionadoLote = null;
+
+    let map,
+        lotes = {},
+        poligonos = {},
+        loteEditando = null,
+        selecionadoLoteamento = null,
+        selecionadoLote = null;
+
+    function showToast(msg, type) {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerText = msg;
+      c.appendChild(t);
+      setTimeout(() => t.classList.add('show'), 10);
+      setTimeout(() => {
+        t.classList.remove('show');
+        setTimeout(() => c.removeChild(t), 300);
+      }, 3000);
+    }
 
     function corPorStatus(s) {
       return s==='Disponível'? '#00cc44'
@@ -197,26 +158,138 @@
       fetch(API_URL)
         .then(res => res.json())
         .then(data => {
+          console.log('Dados recebidos:', data);
           data.forEach(l => {
-            lotes[l.id] = {
-              nome: l.nome,
-              descricao: l.descricao,
-              loteamento: l.loteamento,
-              status: l.status,
-              area: JSON.parse(l.coordenadas)
-            };
-            adicionarPoligonoAoMapa(l.id, lotes[l.id]);
+            // suporta cabeçalhos maiúsculos/minúsculos vindos do Apps Script
+            const id           = l.id           || l.ID;
+            const nome         = l.nome         || l.Nome;
+            const descricao    = l.descricao    || l.Descrição || '';
+            const loteamento   = l.loteamento   || l.Loteamento || '';
+            const status       = l.status       || l.Status      || 'Disponível';
+            let   areaRaw      = l.coordenadas  || l.Coordenadas || '[]';
+            try { areaRaw = JSON.parse(areaRaw) } catch(e){ areaRaw = [] }
+
+            lotes[id] = { nome, descricao, loteamento, status, area: areaRaw };
+            adicionarPoligonoAoMapa(id, lotes[id]);
           });
           renderLoteamentos();
         })
-        .catch(() => showToast('Erro ao carregar lotes','error'));
+        .catch(err => {
+          console.error(err);
+          showToast('Erro ao carregar lotes','error');
+        });
     }
 
-    /* … aqui seguem todas as suas funções de render, CRUD e toasts … */
+    function renderLoteamentos() {
+      const cont = document.getElementById('loteamentosContainer');
+      cont.innerHTML = '';
+      const nomes = Array.from(
+        new Set(Object.values(lotes).map(l=>l.loteamento))
+      )
+      .filter(v=>v)
+      .sort();
+
+      console.log('Loteamentos únicos:', nomes);
+      nomes.forEach(nome => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.innerText = nome;
+        btn.onclick = () => {
+          selecionadoLoteamento = nome;
+          selecionadoLote = null;
+          highlightGroup(cont, btn);
+          renderLotes(nome);
+          clearInfo();
+        };
+        cont.appendChild(btn);
+      });
+    }
+
+    function renderLotes(loteamento) {
+      const cont = document.getElementById('lotesContainer');
+      cont.innerHTML = '';
+      Object.entries(lotes)
+        .filter(([_,l])=>l.loteamento===loteamento)
+        .forEach(([id,l])=>{
+          const btn = document.createElement('button');
+          btn.className = 'btn';
+          btn.innerText = l.nome;
+          btn.onclick = () => {
+            selecionadoLote = id;
+            highlightGroup(cont, btn);
+            destacarLote(id);
+          };
+          cont.appendChild(btn);
+        });
+    }
+
+    function adicionarPoligonoAoMapa(id,l) {
+      const poly = new google.maps.Polygon({
+        paths: l.area,
+        strokeColor: corPorStatus(l.status),
+        fillColor:   corPorStatus(l.status),
+        strokeOpacity:.8, fillOpacity:.35, strokeWeight:2,
+        map
+      });
+      poly.addListener('click', ()=>{
+        // simula clique nos botões
+        document.querySelectorAll('#loteamentosContainer .btn')
+          .forEach(b=>b.innerText===l.loteamento && b.click());
+        setTimeout(()=>{
+          document.querySelectorAll('#lotesContainer .btn')
+            .forEach(b=>b.innerText===l.nome && b.click());
+        },0);
+      });
+      const bounds = new google.maps.LatLngBounds();
+      l.area.forEach(c=>bounds.extend(c));
+      const marker = new google.maps.Marker({
+        position: bounds.getCenter(),
+        map,
+        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 },
+        label:{ text: l.nome, color:'#000', fontSize:'10px' }
+      });
+      poligonos[id] = { polygon: poly, marker };
+    }
+
+    function destacarLote(id) {
+      Object.entries(poligonos).forEach(([i,o])=>{
+        o.polygon.setOptions({
+          fillColor: corPorStatus(lotes[i].status),
+          strokeColor: corPorStatus(lotes[i].status)
+        });
+      });
+      if (!id) return;
+      const o = poligonos[id];
+      o.polygon.setOptions({ fillColor:'#0000FF', strokeColor:'#0000FF' });
+      const b = new google.maps.LatLngBounds();
+      lotes[id].area.forEach(c=>b.extend(c));
+      map.fitBounds(b);
+      mostrarInfo(id);
+    }
+
+    function mostrarInfo(id) {
+      const l = lotes[id];
+      document.getElementById('dadosLote').innerHTML =
+        `<strong>${l.nome}</strong><br>` +
+        `Loteamento: ${l.loteamento}<br>` +
+        `Status: ${l.status}<br>` +
+        `Descrição:<br>${l.descricao.replace(/\n/g,'<br>')}`;
+    }
+    function clearInfo() {
+      document.getElementById('dadosLote').innerText = 'Nenhum lote selecionado.';
+    }
+
+    function highlightGroup(container, activeBtn) {
+      container.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+      activeBtn.classList.add('active');
+    }
+
+    /** CRUD: apenas as funções de edição, exclusão e salvar (igual v1.1) **/
+    // ... cole aqui as funções adicionarOuAtualizarLote, editarLote, excluirLote ...
 
   </script>
 
-  <script async
+  <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap">
   </script>
 </body>
