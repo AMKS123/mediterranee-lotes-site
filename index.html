@@ -1,80 +1,146 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <title>Mediterranee v1.1-botões + debug</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <title>Mediterranee Imobiliaria – v1.1 Botões</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
+    /* layout geral e reset */
     html, body { height:100%; margin:0; padding:0; }
     body {
-      display:flex; min-height:100vh;
+      display:flex;
       font-family:Arial,sans-serif;
       background:#f0f2f5;
+      min-height:100vh;
     }
     #sidebar {
-      width:300px; padding:1rem;
-      background:#fff; overflow-y:auto;
+      width:300px;
+      padding:1rem;
+      background:#fff;
+      overflow-y:auto;
       box-shadow:2px 0 5px rgba(0,0,0,0.1);
     }
     #map {
-      flex:1; height:100%; min-height:200px;
+      flex:1;
+      height:100%;
+      min-height:200px;
     }
-    h1 { font-size:1.4rem; text-align:center; margin-bottom:1rem }
-    .btn-group { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem }
+
+    /* títulos */
+    h1 {
+      font-size:1.4rem;
+      text-align:center;
+      margin-bottom:1rem;
+    }
+
+    /* grupos de botões */
+    .btn-group {
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+      margin-bottom:1rem;
+    }
     .btn {
       flex:1 1 calc(50% - .5rem);
-      padding:.8rem; background:#3498db; color:#fff;
-      border:none; border-radius:4px; text-align:center;
-      cursor:pointer; transition:background .2s;
-    }
-    .btn:hover { background:#2980b9 }
-    .btn.active { background:#2c3e50 }
-    #infoLote {
-      background:#fafafa; border:1px solid #ddd;
-      padding:.5rem; margin-bottom:1rem;
-    }
-    label { display:block; margin-top:.75rem; font-weight:bold }
-    input, select, textarea {
-      width:100%; margin-top:.25rem; padding:.6rem;
-      border:1px solid #ccc; border-radius:4px;
+      padding:.8rem;
+      background:#3498db;
+      color:#fff;
+      border:none;
+      border-radius:4px;
+      text-align:center;
       font-size:1rem;
-    }
-    .btn-action {
-      width:100%; padding:.6rem; margin-top:.8rem;
-      border:none; border-radius:4px; color:#fff;
-      font-size:1rem; cursor:pointer;
+      cursor:pointer;
       transition:background .2s;
     }
-    .btn-action.save   { background:#27ae60 }
-    .btn-action.save:hover { background:#219150 }
-    .btn-action.edit   { background:#f1c40f; color:#000 }
-    .btn-action.edit:hover { background:#d4ac0d }
-    .btn-action.delete { background:#c0392b }
-    .btn-action.delete:hover { background:#a93226 }
-    #toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:9999 }
+    .btn:hover { background:#2980b9; }
+    .btn.active { background:#2c3e50; }
+
+    /* info do lote */
+    #infoLote {
+      background:#fafafa;
+      border:1px solid #ddd;
+      padding:.5rem;
+      margin-bottom:1rem;
+    }
+
+    /* formulários */
+    label {
+      display:block;
+      margin-top:.75rem;
+      font-weight:bold;
+    }
+    input, select, textarea {
+      width:100%;
+      padding:.6rem;
+      margin-top:.25rem;
+      border:1px solid #ccc;
+      border-radius:4px;
+      font-size:1rem;
+    }
+
+    /* botões de ação */
+    .btn-action {
+      width:100%;
+      padding:.6rem;
+      margin-top:.8rem;
+      border:none;
+      border-radius:4px;
+      font-size:1rem;
+      cursor:pointer;
+      transition:background .2s;
+      color:#fff;
+    }
+    .btn-action.save   { background:#27ae60; }
+    .btn-action.save:hover { background:#219150; }
+    .btn-action.edit   { background:#f1c40f; color:#000; }
+    .btn-action.edit:hover { background:#d4ac0d; }
+    .btn-action.delete { background:#c0392b; }
+    .btn-action.delete:hover { background:#a93226; }
+
+    /* toasts */
+    #toast-container {
+      position:fixed;
+      top:1rem;
+      right:1rem;
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+      z-index:9999;
+    }
     .toast {
-      padding:.75rem 1rem; border-radius:4px; color:#fff;
+      padding:.75rem 1rem;
+      border-radius:4px;
+      color:#fff;
       box-shadow:0 2px 6px rgba(0,0,0,0.2);
-      opacity:0; transform:translateX(100%);
+      opacity:0;
+      transform:translateX(100%);
       transition:all .3s ease;
     }
-    .toast.show { opacity:1; transform:translateX(0) }
-    .toast.success { background:#28a745 }
-    .toast.error   { background:#dc3545 }
+    .toast.show { opacity:1; transform:translateX(0); }
+    .toast.success { background:#28a745; }
+    .toast.error   { background:#dc3545; }
+
+    /* responsivo */
     @media (max-width:768px) {
-      body { flex-direction:column }
-      #sidebar { width:100%; box-shadow:none; border-bottom:1px solid #ccc }
-      #map { height:60vh }
+      body { flex-direction:column; }
+      #sidebar {
+        width:100%;
+        box-shadow:none;
+        border-bottom:1px solid #ccc;
+      }
+      #map { height:60vh; }
     }
   </style>
 </head>
 <body>
 
+  <!-- SIDEBAR -->
   <div id="sidebar">
     <h1>Escolha o Loteamento</h1>
     <div id="loteamentosContainer" class="btn-group"></div>
 
-    <h1 style="font-size:1.2rem;margin-top:1rem">Selecione o Lote</h1>
+    <h1 style="font-size:1.2rem; margin-top:1rem;">Selecione o Lote</h1>
     <div id="lotesContainer" class="btn-group"></div>
 
     <div id="infoLote">
@@ -82,7 +148,7 @@
       <div id="dadosLote">Nenhum lote selecionado.</div>
     </div>
 
-    <h1 style="font-size:1.2rem">Cadastrar / Editar</h1>
+    <h1 style="font-size:1.2rem;">Cadastrar / Editar</h1>
     <label for="usuarioInput">Usuário (para log)</label>
     <input id="usuarioInput" placeholder="Seu nome">
 
@@ -108,17 +174,26 @@
     <label for="senhaInput">Senha</label>
     <input id="senhaInput" type="password" placeholder="********">
 
-    <button class="btn-action save"   onclick="adicionarOuAtualizarLote(event)">Salvar Lote</button>
-    <button class="btn-action edit"   onclick="editarLote()">Editar Lote</button>
-    <button class="btn-action delete" onclick="excluirLote()">Excluir Lote</button>
+    <button class="btn-action save" onclick="adicionarOuAtualizarLote(event)">
+      Salvar Lote
+    </button>
+    <button class="btn-action edit" onclick="editarLote()">
+      Editar Lote
+    </button>
+    <button class="btn-action delete" onclick="excluirLote()">
+      Excluir Lote
+    </button>
   </div>
 
+  <!-- MAPA -->
   <div id="map"></div>
+
+  <!-- CONTAINER DE TOAST -->
   <div id="toast-container"></div>
 
   <script>
-    // 1) Atualize aqui:
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyVTVvM5_ns-9qREwe3YN0r8QgarZ7-20nZ6UX3PhXDXX0RCbbCojkBSNQfJoQbRrsf/exec';
+    // **ATUALIZE AQUI** com sua URL de Web App
+    const API_URL = 'https://script.google.com/macros/s/SEU_URL_AQUI/exec';
 
     let map,
         lotes = {},
@@ -130,7 +205,7 @@
     function showToast(msg, type) {
       const c = document.getElementById('toast-container');
       const t = document.createElement('div');
-      t.className = `toast ${type}`;
+      t.className = 'toast ' + type;
       t.innerText = msg;
       c.appendChild(t);
       setTimeout(() => t.classList.add('show'), 10);
@@ -140,15 +215,14 @@
       }, 3000);
     }
 
-    function corPorStatus(s) {
-      return s==='Disponível'? '#00cc44'
-           : s==='Reservado'?  '#ffcc00'
-           : s==='Vendido'?    '#ff4444'
-           : '#0000FF';
+    function corPorStatus(status) {
+      if (status === 'Disponível') return '#00cc44';
+      if (status === 'Reservado') return '#ffcc00';
+      if (status === 'Vendido') return '#ff4444';
+      return '#0000FF';
     }
 
     function initMap() {
-      console.log('✅ initMap foi chamado');
       map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: -20.89936, lng: -46.99021 },
         zoom: 18,
@@ -156,40 +230,36 @@
       });
 
       fetch(API_URL)
-        .then(res => res.json())
+        .then(r => r.json())
         .then(data => {
-          console.log('Dados recebidos:', data);
-          data.forEach(l => {
-            // suporta cabeçalhos maiúsculos/minúsculos vindos do Apps Script
-            const id           = l.id           || l.ID;
-            const nome         = l.nome         || l.Nome;
-            const descricao    = l.descricao    || l.Descrição || '';
-            const loteamento   = l.loteamento   || l.Loteamento || '';
-            const status       = l.status       || l.Status      || 'Disponível';
-            let   areaRaw      = l.coordenadas  || l.Coordenadas || '[]';
-            try { areaRaw = JSON.parse(areaRaw) } catch(e){ areaRaw = [] }
-
-            lotes[id] = { nome, descricao, loteamento, status, area: areaRaw };
+          data.forEach(item => {
+            const id         = item.id           || item.ID;
+            const nome       = item.nome         || item.Nome      || '';
+            const descricao  = item.descricao    || item.Descrição || '';
+            const loteamento = item.loteamento   || item.Loteamento|| '';
+            const status     = item.status       || item.Status    || 'Disponível';
+            let area;
+            try {
+              area = JSON.parse(item.coordenadas || item.Coordenadas || '[]');
+            } catch {
+              area = [];
+            }
+            lotes[id] = { nome, descricao, loteamento, status, area };
             adicionarPoligonoAoMapa(id, lotes[id]);
           });
           renderLoteamentos();
         })
-        .catch(err => {
-          console.error(err);
-          showToast('Erro ao carregar lotes','error');
-        });
+        .catch(() => showToast('Erro ao carregar lotes','error'));
     }
 
     function renderLoteamentos() {
       const cont = document.getElementById('loteamentosContainer');
       cont.innerHTML = '';
       const nomes = Array.from(
-        new Set(Object.values(lotes).map(l=>l.loteamento))
+        new Set(Object.values(lotes).map(l => l.loteamento))
       )
-      .filter(v=>v)
+      .filter(v => v)
       .sort();
-
-      console.log('Loteamentos únicos:', nomes);
       nomes.forEach(nome => {
         const btn = document.createElement('button');
         btn.className = 'btn';
@@ -200,6 +270,7 @@
           highlightGroup(cont, btn);
           renderLotes(nome);
           clearInfo();
+          limparFormulario();
         };
         cont.appendChild(btn);
       });
@@ -209,8 +280,8 @@
       const cont = document.getElementById('lotesContainer');
       cont.innerHTML = '';
       Object.entries(lotes)
-        .filter(([_,l])=>l.loteamento===loteamento)
-        .forEach(([id,l])=>{
+        .filter(([_, l]) => l.loteamento === loteamento)
+        .forEach(([id, l]) => {
           const btn = document.createElement('button');
           btn.className = 'btn';
           btn.innerText = l.nome;
@@ -223,74 +294,157 @@
         });
     }
 
-    function adicionarPoligonoAoMapa(id,l) {
-      const poly = new google.maps.Polygon({
-        paths: l.area,
-        strokeColor: corPorStatus(l.status),
-        fillColor:   corPorStatus(l.status),
-        strokeOpacity:.8, fillOpacity:.35, strokeWeight:2,
+    function adicionarPoligonoAoMapa(id, lote) {
+      const polygon = new google.maps.Polygon({
+        paths: lote.area,
+        strokeColor: corPorStatus(lote.status),
+        fillColor: corPorStatus(lote.status),
+        strokeOpacity: 0.8,
+        fillOpacity: 0.35,
+        strokeWeight: 2,
         map
       });
-      poly.addListener('click', ()=>{
-        // simula clique nos botões
+      polygon.addListener('click', () => {
         document.querySelectorAll('#loteamentosContainer .btn')
-          .forEach(b=>b.innerText===l.loteamento && b.click());
-        setTimeout(()=>{
+          .forEach(b => { if (b.innerText === lote.loteamento) b.click(); });
+        setTimeout(() => {
           document.querySelectorAll('#lotesContainer .btn')
-            .forEach(b=>b.innerText===l.nome && b.click());
-        },0);
+            .forEach(b => { if (b.innerText === lote.nome) b.click(); });
+        }, 0);
       });
       const bounds = new google.maps.LatLngBounds();
-      l.area.forEach(c=>bounds.extend(c));
+      lote.area.forEach(coord => bounds.extend(coord));
       const marker = new google.maps.Marker({
         position: bounds.getCenter(),
         map,
         icon: { path: google.maps.SymbolPath.CIRCLE, scale: 0 },
-        label:{ text: l.nome, color:'#000', fontSize:'10px' }
+        label: { text: lote.nome, color: '#000', fontSize: '10px' }
       });
-      poligonos[id] = { polygon: poly, marker };
+      poligonos[id] = { polygon, marker };
     }
 
     function destacarLote(id) {
-      Object.entries(poligonos).forEach(([i,o])=>{
-        o.polygon.setOptions({
-          fillColor: corPorStatus(lotes[i].status),
-          strokeColor: corPorStatus(lotes[i].status)
+      Object.entries(poligonos).forEach(([key,obj]) => {
+        obj.polygon.setOptions({
+          fillColor: corPorStatus(lotes[key].status),
+          strokeColor: corPorStatus(lotes[key].status)
         });
       });
-      if (!id) return;
       const o = poligonos[id];
       o.polygon.setOptions({ fillColor:'#0000FF', strokeColor:'#0000FF' });
-      const b = new google.maps.LatLngBounds();
-      lotes[id].area.forEach(c=>b.extend(c));
-      map.fitBounds(b);
+      const bounds = new google.maps.LatLngBounds();
+      lotes[id].area.forEach(c => bounds.extend(c));
+      map.fitBounds(bounds);
       mostrarInfo(id);
     }
 
     function mostrarInfo(id) {
       const l = lotes[id];
       document.getElementById('dadosLote').innerHTML =
-        `<strong>${l.nome}</strong><br>` +
-        `Loteamento: ${l.loteamento}<br>` +
-        `Status: ${l.status}<br>` +
-        `Descrição:<br>${l.descricao.replace(/\n/g,'<br>')}`;
+        `<strong>Nome:</strong> ${l.nome}<br>` +
+        `<strong>Loteamento:</strong> ${l.loteamento}<br>` +
+        `<strong>Status:</strong> ${l.status}<br>` +
+        `<strong>Descrição:</strong><br>${l.descricao.replace(/\n/g,'<br>')}`;
     }
+
     function clearInfo() {
       document.getElementById('dadosLote').innerText = 'Nenhum lote selecionado.';
     }
 
     function highlightGroup(container, activeBtn) {
-      container.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+      container.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
       activeBtn.classList.add('active');
     }
 
-    /** CRUD: apenas as funções de edição, exclusão e salvar (igual v1.1) **/
-    // ... cole aqui as funções adicionarOuAtualizarLote, editarLote, excluirLote ...
+    function limparFormulario() {
+      loteEditando = null;
+      document.getElementById('nomeLote').value        = '';
+      document.getElementById('loteamentoInput').value= '';
+      document.getElementById('statusInput').value     = 'Disponível';
+      document.getElementById('descricaoLote').value   = '';
+      document.getElementById('coordenadas').value     = '';
+      document.getElementById('senhaInput').value      = '';
+    }
 
+    function editarLote() {
+      if (!selecionadoLote) {
+        showToast('Selecione um lote antes de editar','error');
+        return;
+      }
+      const l = lotes[selecionadoLote];
+      loteEditando = selecionadoLote;
+      document.getElementById('nomeLote').value        = l.nome;
+      document.getElementById('loteamentoInput').value= l.loteamento;
+      document.getElementById('statusInput').value     = l.status;
+      document.getElementById('descricaoLote').value   = l.descricao;
+      document.getElementById('coordenadas').value     = l.area.map(c => `${c.lat},${c.lng}`).join('\n');
+    }
+
+    function excluirLote() {
+      if (!selecionadoLote) {
+        showToast('Selecione um lote antes de excluir','error');
+        return;
+      }
+      if (!confirm('Deseja realmente excluir este lote?')) return;
+      const user  = document.getElementById('usuarioInput').value.trim() || 'anon';
+      const senha = document.getElementById('senhaInput').value.trim();
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action:'delete', id:selecionadoLote, user, senha })
+      })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(res => {
+        if (res.success) {
+          showToast(res.message,'success');
+          limparFormulario();
+          setTimeout(() => location.reload(), 500);
+        } else {
+          showToast(res.error,'error');
+        }
+      })
+      .catch(() => showToast('Erro ao excluir lote','error'));
+    }
+
+    function adicionarOuAtualizarLote(event) {
+      event.preventDefault();
+      const nome       = document.getElementById('nomeLote').value.trim();
+      const lotea      = document.getElementById('loteamentoInput').value.trim();
+      const stat       = document.getElementById('statusInput').value;
+      const desc       = document.getElementById('descricaoLote').value.trim();
+      const rawCoords  = document.getElementById('coordenadas').value.trim();
+      const user       = document.getElementById('usuarioInput').value.trim() || 'anon';
+      const senha      = document.getElementById('senhaInput').value.trim();
+      if (!nome || !lotea || !desc || !rawCoords || !senha) {
+        showToast('Preencha todos os campos','error');
+        return;
+      }
+      const area = rawCoords.split('\n').map(line => {
+        const [lat,lng] = line.split(',').map(n => parseFloat(n.trim()));
+        return { lat, lng };
+      });
+      const action = loteEditando ? 'update' : 'add';
+      const id     = loteEditando || Date.now().toString();
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action, id, nome, loteamento: lotea, status: stat, descricao: desc, coordenadas: JSON.stringify(area), user, senha })
+      })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(res => {
+        if (res.success) {
+          showToast(res.message,'success');
+          limparFormulario();
+          setTimeout(() => location.reload(), 500);
+        } else {
+          showToast(res.error,'error');
+        }
+      })
+      .catch(() => showToast('Erro ao salvar lote','error'));
+    }
   </script>
 
+  <!-- Substitua YOUR_API_KEY pela sua chave válida -->
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDhEeVyf-afKNIFW414nQd9CEa-Luxx9sA&callback=initMap">
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap">
   </script>
 </body>
 </html>
